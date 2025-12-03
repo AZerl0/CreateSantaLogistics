@@ -37,6 +37,6 @@ public class SantaEntityTypes {
     }
 
     public static void entityAttributeCreation(EntityAttributeCreationEvent event) {
-        event.put(ROBO_ELF.get(), RoboElf.createMobAttributes().build());
+        event.put(ROBO_ELF.get(), RoboElf.createRoboElfAttributes().build());
     }
 }

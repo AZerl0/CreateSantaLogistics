@@ -85,22 +85,39 @@ public class RoboElfModel extends EntityModel<RoboElf> {
 
     @Override
     public void setupAnim(RoboElf entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        float animTime = limbSwing*1.75f;
         right_arm.zRot = 0.3f;
-        right_arm.xRot = -Mth.sin(limbSwing/2f)*limbSwingAmount;
-        right_leg.xRot = -Mth.clamp(-Mth.cos(limbSwing/2f),0,1)*limbSwingAmount;
-        right_leg.z = Mth.cos(limbSwing/2f)*limbSwingAmount+0.5f;
-        right_leg.y = 17-Mth.sin(limbSwing/2f)*limbSwingAmount;
+        right_arm.xRot = -Mth.sin(animTime)*limbSwingAmount;
+        right_leg.xRot = -Mth.clamp(-Mth.cos(animTime),0,1)*limbSwingAmount;
+        right_leg.z = Mth.cos(animTime)*limbSwingAmount*4f+0.5f;
+        right_leg.y = 17-Mth.sin(animTime)*limbSwingAmount*2f;
 
         left_arm.zRot = -0.3f;
-        left_arm.xRot = Mth.sin(limbSwing/2f)*limbSwingAmount;
-        left_leg.xRot = -Mth.clamp(Mth.cos(limbSwing/2f)*limbSwingAmount,0,1);
-        left_leg.z = -Mth.cos(limbSwing/2f)*limbSwingAmount+0.5f;
-        left_leg.y = 17+Mth.sin(limbSwing/2f)*limbSwingAmount;
+        left_arm.xRot = Mth.sin(animTime)*limbSwingAmount;
+        left_leg.xRot = -Mth.clamp(Mth.cos(animTime)*limbSwingAmount,0,1);
+        left_leg.z = -Mth.cos(animTime)*limbSwingAmount*4f+0.5f;
+        left_leg.y = 17+Mth.sin(animTime)*limbSwingAmount*2f;
 
-        body.y = 25-Mth.sin(limbSwing)/2f*limbSwingAmount;
+        body.y = 25-Mth.sin(animTime*2)*limbSwingAmount;
 
         body.yRot = netHeadYaw * (float) (Math.PI / 180.0);
+        hat.xRot = -0.2173615597F;
+        hat.yRot = 0.0188652639f;
+        hat.zRot = 0.0852087194f;
 
+        hat_1.xRot = -0.0193190495f;
+        hat_1.yRot = -0.2173231625f;
+        hat_1.zRot = 0.0852087194f;
+
+        //xRot is just 0
+        hat_2.yRot = -0.261799f;
+        hat_2.zRot = 0.08520871941f;
+
+        //xRot is just 0
+        hat_3.yRot = -0.3926991f;
+        hat_3.zRot = 0.523599f;
+
+        wind.zRot = limbSwing;
 
     }
 

@@ -96,24 +96,25 @@ public class SantaDoorBlockEntityRenderer implements BlockEntityRenderer<SantaDo
         boolean flag = blockEntity.getBlockState().getValue(SantaDoorBlock.OPEN);
 
         long gameTime = blockEntity.getLevel() == null ? 0 : blockEntity.getLevel().getGameTime();
+        int animDuration = 100;
         if(blockEntity.lastStateTime < 0) {
             blockEntity.lastState = flag;
             blockEntity.lastStateTime = 0;
         }
         if(blockEntity.lastState != flag) {
-            blockEntity.lastStateTime = gameTime + (long)(Mth.clamp(gameTime - blockEntity.lastStateTime, 0, 60)/60f);
+            blockEntity.lastStateTime = gameTime- animDuration + (Mth.clamp(gameTime - blockEntity.lastStateTime, 0, animDuration));
             blockEntity.lastState = flag;
         }
-        float xProgress = Mth.clamp(Mth.clamp(gameTime - blockEntity.lastStateTime, 0, 60) + partialTick, 0, 60)/60f;
-        float progress = (float) (flag ? 1-Math.pow(xProgress-1, 4) : Math.pow(xProgress-1, 4));
+        float xProgress = Mth.clamp(Mth.clamp(gameTime - blockEntity.lastStateTime, 0, animDuration) + partialTick, 0, animDuration)/animDuration;
+        float progress = (flag ? 1-Mth.cos(xProgress*Mth.PI) : 1+Mth.cos(xProgress*Mth.PI)) /2f;
 
         body.yRot = progress* (Mth.HALF_PI-0.3f);
-        lock_1.yRot = progress;
-        lock_2.yRot = progress*1.5f;
-        lock_3.yRot = progress*2;
-        lock_4.yRot = -progress;
-        lock_5.yRot = -progress*1.5f;
-        lock_6.yRot = -progress*2;
+        lock_1.yRot = (float) (1-Math.pow(2, -100*progress));
+        lock_2.yRot = (float) (1-Math.pow(2, -100*progress))*1.5f;
+        lock_3.yRot = (float) (1-Math.pow(2, -100*progress))*2;
+        lock_4.yRot = -(float) (1-Math.pow(2, -100*progress));
+        lock_5.yRot = -(float) (1-Math.pow(2, -100*progress))*1.5f;
+        lock_6.yRot = -(float) (1-Math.pow(2, -100*progress))*2;
         assert blockEntity.getLevel() != null;
         float cogSpeed = (blockEntity.getLevel().getGameTime() + partialTick)/2;
         small_cog.zRot = cogSpeed;
