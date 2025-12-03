@@ -1,5 +1,9 @@
 package net.liukrast.santa.world.entity;
 
+import net.liukrast.santa.registry.SantaAttributes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -7,8 +11,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import org.lwjgl.system.NonnullDefault;
 
+@NonnullDefault
 public class RoboElf extends PathfinderMob {
+    private static final EntityDataAccessor<Float> CHARGE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.FLOAT);
     public RoboElf(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
     }
@@ -22,9 +29,15 @@ public class RoboElf extends PathfinderMob {
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
     }
 
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+    }
+
     public static AttributeSupplier.Builder createRoboElfAttributes() {
         return PathfinderMob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20)
-                .add(Attributes.MOVEMENT_SPEED, 0.25);
+                .add(Attributes.MOVEMENT_SPEED, 0.25)
+                .add(SantaAttributes.MAX_CHARGE, 200);
     }
 }
