@@ -1,6 +1,8 @@
 package net.liukrast.santa.world.entity;
 
 import com.simibubi.create.content.kinetics.base.IRotate;
+import com.simibubi.create.content.logistics.box.PackageEntity;
+import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.liukrast.santa.DeployerGoggleInformation;
@@ -25,6 +27,8 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -48,6 +52,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
     @Override
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new RoboElfFindStationGoal(this, 1.5));
+        this.goalSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PackageEntity.class, true));
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new PanicGoal(this, 1.25));
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.0));
@@ -100,6 +105,14 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
                 .add(Attributes.MAX_HEALTH, 20)
                 .add(Attributes.MOVEMENT_SPEED, 0.25)
                 .add(SantaAttributes.MAX_CHARGE, 1024);
+    }
+
+    @Override
+    protected void pickUpItem(ItemEntity itemEntity) {
+        if(PackageItem.isPackage(itemEntity.getItem())) {
+            this.take(itemEntity, 1);
+        }
+        super.pickUpItem(itemEntity);
     }
 
     @Override
