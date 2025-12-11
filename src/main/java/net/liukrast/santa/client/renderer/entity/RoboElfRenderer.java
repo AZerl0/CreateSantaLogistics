@@ -14,6 +14,7 @@ public class RoboElfRenderer extends MobRenderer<RoboElf, RoboElfModel> {
 
     public RoboElfRenderer(EntityRendererProvider.Context context) {
         super(context, new RoboElfModel(context.bakeLayer(RoboElfModel.LAYER_LOCATION)), 0.5f);
+        addLayer(new ElfItemInHandLayer(this, context.getItemInHandRenderer()));
     }
 
     @Override

@@ -1,4 +1,12 @@
-// 1.21.1	2025-12-03T07:12:44.2311986	Item Models: santa_logistics
+// 1.21.1	2025-12-10T18:35:46.9441429	Item Models: santa_logistics
+25af13465cf4f6408f3419d5800aac217401a8c6 assets/santa_logistics/models/item/blue_present.json
+7e487bab94ed7b6eb505fef145dc6a248d32f743 assets/santa_logistics/models/item/christmas_tree.json
+f95efa0415eb8c66005eaa131930acf17a7d2930 assets/santa_logistics/models/item/elf_charge_station.json
+f5ceddac71d4c43135d6827d1527c9c000775cc0 assets/santa_logistics/models/item/green_pois_present.json
+62be92a3fd66c33954b6f08de22d2f58248e6eb5 assets/santa_logistics/models/item/green_present.json
+74257709830281d4c484cad4f0bc76b5673ba40e assets/santa_logistics/models/item/red_present.json
+f851655dfc14affbec830a72c70822bd634f7fe6 assets/santa_logistics/models/item/red_tree_present.json
 63ec6c618a3a23eab4cab9c52d7d3250de9b516e assets/santa_logistics/models/item/robo_elf_spawn_egg.json
 55fd5cc73d901ace41d1dae458aa3c4b7ac8b105 assets/santa_logistics/models/item/santa_dock.json
 e752155e96f1bf8d23ada70289d70ccbd22787fe assets/santa_logistics/models/item/santa_door.json
+aa6b0409e65d30030b738e2e295ca8e7492be382 assets/santa_logistics/models/item/yellow_present.json

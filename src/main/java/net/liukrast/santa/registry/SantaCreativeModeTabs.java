@@ -21,6 +21,7 @@ public class SantaCreativeModeTabs {
                     out.accept(SantaItems.ROBO_ELF_SPAWN_EGG);
                     out.accept(SantaBlocks.ELF_CHARGE_STATION);
                     SantaItems.PRESENTS.forEach(out::accept);
+                    out.accept(SantaBlocks.CHRISTMAS_TREE);
                 })
                 .build());
     }

@@ -10,6 +10,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * A deployer API will replace this
+ * */
+@Deprecated(forRemoval = true)
 @Mixin(WiFiEffectPacket.class)
 public class WifiEffectPacketMixin {
     @Inject(method = "handle", at = @At("TAIL"))

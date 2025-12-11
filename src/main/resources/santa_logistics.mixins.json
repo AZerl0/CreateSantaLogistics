@@ -4,9 +4,13 @@
   "package": "net.liukrast.santa.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-	"GoggleOverlayRendererMixin"
+	"GoggleOverlayRendererMixin",
+	"PackageItemMixin",
+	"PackagerItemHandlerMixin",
+	"SawBlockEntityMixin"
   ],
   "client": [
+	"PackageRendererMixin",
 	"WifiEffectPacketMixin"
   ],
   "injectors": {

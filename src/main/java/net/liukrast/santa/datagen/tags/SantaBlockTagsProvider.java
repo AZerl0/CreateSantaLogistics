@@ -23,6 +23,8 @@ public class SantaBlockTagsProvider extends BlockTagsProvider {
         var axe = tag(BlockTags.MINEABLE_WITH_AXE);
         var pick = tag(BlockTags.MINEABLE_WITH_PICKAXE);
         axe.add(SantaBlocks.SANTA_DOOR.get());
+        axe.add(SantaBlocks.CHRISTMAS_TREE.get());
         pick.add(SantaBlocks.SANTA_DOCK.get());
+        pick.add(SantaBlocks.ELF_CHARGE_STATION.get());
     }
 }

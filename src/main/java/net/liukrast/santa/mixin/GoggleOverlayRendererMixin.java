@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Will be replaced with deployer API usage
+ * A deployer API will replace this
  * */
 @Deprecated(forRemoval = true)
 @Mixin(GoggleOverlayRenderer.class)

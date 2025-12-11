@@ -1,9 +1,7 @@
 package net.liukrast.santa;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
-import net.liukrast.santa.datagen.SantaBlockLootSubProvider;
-import net.liukrast.santa.datagen.SantaItemModelProvider;
-import net.liukrast.santa.datagen.SantaLanguageProvider;
+import net.liukrast.santa.datagen.*;
 import net.liukrast.santa.datagen.tags.SantaBlockTagsProvider;
 import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
@@ -53,6 +51,7 @@ public class Santa {
         SantaItems.init(eventBus);
         SantaAttributes.init(eventBus);
         SantaDataComponentTypes.init(eventBus);
+        SantaPartialModels.init();
         eventBus.addListener(SantaEntityTypes::entityAttributeCreation);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::levelTickPost);
@@ -188,12 +187,15 @@ public class Santa {
         ExistingFileHelper helper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         generator.addProvider(event.includeClient(), new SantaLanguageProvider(packOutput));
+        generator.addProvider(event.includeClient(), new SantaBlockStateProvider(packOutput, helper));
         generator.addProvider(event.includeClient(), new SantaItemModelProvider(packOutput, helper));
         var blockTagProvider = new SantaBlockTagsProvider(packOutput, lookupProvider, helper);
         generator.addProvider(event.includeServer(), blockTagProvider);
+        var dataPackProvider = new SantaDatapackBuiltinEntriesProvider(packOutput, lookupProvider);
         generator.addProvider(event.includeServer(), new LootTableProvider(packOutput, Collections.emptySet(),
                 List.of(
                         new LootTableProvider.SubProviderEntry(SantaBlockLootSubProvider::new, LootContextParamSets.BLOCK)
                 ), lookupProvider));
+        generator.addProvider(event.includeServer(), new SantaRecipeProvider(packOutput, dataPackProvider.getRegistryProvider()));
     }
 }

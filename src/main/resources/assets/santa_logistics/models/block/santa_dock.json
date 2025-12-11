@@ -2,7 +2,7 @@
 	"format_version": "1.21.6",
 	"credit": "Made by LiukRast",
 	"textures": {
-		"1": "santa_logistics:block/santa_dock_tree",
+		"1": "santa_logistics:item/christmas_tree",
 		"2": "create:block/link_details",
 		"4": "santa_logistics:block/santa_dock_side_no_screen",
 		"5": "create:block/port2",

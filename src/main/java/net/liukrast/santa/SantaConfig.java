@@ -17,6 +17,9 @@ public class SantaConfig {
     public static final ModConfigSpec.IntValue ELF_RECHARGE_PERCENTAGE = BUILDER
             .comment("Defines at what percentage of charge an elf starts looking for potential charge stations")
             .defineInRange("elfRechargePercentage", 50, 0, 100);
+    public static final ModConfigSpec.IntValue ELF_UNSTRESS_COOLDOWN = BUILDER
+            .comment("Defines how many ticks it takes for an elf to lower his stress by 1")
+            .defineInRange("elfUnstressCooldown", 400, 0, Integer.MAX_VALUE);
 
     public static final ModConfigSpec SPEC = BUILDER.build();
 }

@@ -1,3 +1,5 @@
-// 1.21.1	2025-12-02T12:15:16.1651188	Loot Tables
+// 1.21.1	2025-12-10T18:02:32.1320979	Loot Tables
+da8343cef627ccb3a420fc04a8f2f4f153c25a3f data/santa_logistics/loot_table/blocks/christmas_tree.json
+14c8431541bbb86691a2bc8dd8de4f908716faa4 data/santa_logistics/loot_table/blocks/elf_charge_station.json
 d02c4fd97d07dc3341e3fe655e99a9e37066d230 data/santa_logistics/loot_table/blocks/santa_dock.json
 1766463e354cb45a05d529591e74373129640d56 data/santa_logistics/loot_table/blocks/santa_door.json

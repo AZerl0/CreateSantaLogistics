@@ -2,18 +2,21 @@ package net.liukrast.santa.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.world.entity.RoboElf;
+import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.HumanoidArm;
 import org.lwjgl.system.NonnullDefault;
 
 @NonnullDefault
-public class RoboElfModel extends EntityModel<RoboElf> {
+public class RoboElfModel extends EntityModel<RoboElf> implements ArmedModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(SantaConstants.id("robo_elf"), "main");
     private final ModelPart right_leg;
     private final ModelPart left_leg;
@@ -82,21 +85,30 @@ public class RoboElfModel extends EntityModel<RoboElf> {
     @Override
     public void setupAnim(RoboElf entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         float animTime = limbSwing*1.75f;
-        right_arm.zRot = 0.3f;
-        right_arm.xRot = -Mth.sin(animTime)*limbSwingAmount;
+        boolean holding = !entity.getMainHandItem().isEmpty();
+        boolean off = entity.getCharge() == 0;
+        body.resetPose();
+        body.xRot = off ? 0.5f : 0;
+        body.z = off ? 5f : 0;
+
+        right_arm.zRot = holding ? -0.1f : off ? 0.1f : 0.3f;
+        right_arm.xRot = holding ? -0.7f : off ? -0.5f : -Mth.sin(animTime)*limbSwingAmount;
         right_leg.xRot = -Mth.clamp(-Mth.cos(animTime),0,1)*limbSwingAmount;
         right_leg.z = Mth.cos(animTime)*limbSwingAmount*4f+0.5f;
         right_leg.y = 17-Mth.sin(animTime)*limbSwingAmount*2f;
 
-        left_arm.zRot = -0.3f;
-        left_arm.xRot = Mth.sin(animTime)*limbSwingAmount;
+        left_arm.zRot = holding ? 0.1f : off ? -0.1f : -0.3f;
+        left_arm.xRot = holding ? -0.7f : off ? -0.5f : Mth.sin(animTime)*limbSwingAmount;
         left_leg.xRot = -Mth.clamp(Mth.cos(animTime)*limbSwingAmount,0,1);
         left_leg.z = -Mth.cos(animTime)*limbSwingAmount*4f+0.5f;
         left_leg.y = 17+Mth.sin(animTime)*limbSwingAmount*2f;
 
         body.y = 25-Mth.sin(animTime*2)*limbSwingAmount;
 
-        body.yRot = netHeadYaw * (float) (Math.PI / 180.0);
+        int st = entity.getStress();
+        float size = st > 70 ? 2 : st > 40 ? 1 : 0;
+        body.yRot = netHeadYaw * (float) (Math.PI / 180.0) + (off ? 0 : size*Mth.cos(ageInTicks*size)/10);
+        body.zRot = off ? 0 : size*Mth.cos(ageInTicks*size)/100;
         hat.xRot = -0.2173615597F;
         hat.yRot = 0.0188652639f;
         hat.zRot = 0.0852087194f;
@@ -113,7 +125,7 @@ public class RoboElfModel extends EntityModel<RoboElf> {
         hat_3.yRot = -0.3926991f;
         hat_3.zRot = 0.523599f;
 
-        wind.zRot = limbSwing;
+        wind.zRot = entity.getCharge()/2f;
     }
 
     @Override
@@ -121,5 +133,13 @@ public class RoboElfModel extends EntityModel<RoboElf> {
         right_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         left_leg.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
         body.render(poseStack, vertexConsumer, packedLight, packedOverlay, color);
+    }
+
+    @Override
+    public void translateToHand(HumanoidArm side, PoseStack poseStack) {
+        this.body.translateAndRotate(poseStack);
+        poseStack.mulPose(Axis.XP.rotation(this.right_arm.xRot));
+        poseStack.scale(2F, 2F, 2F);
+        poseStack.translate(0.07, -0.6f, -0.3f);
     }
 }

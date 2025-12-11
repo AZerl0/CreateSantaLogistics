@@ -15,30 +15,23 @@ import net.minecraft.util.Mth;
 import java.util.function.Consumer;
 
 import static net.minecraft.world.level.block.state.properties.BlockStateProperties.FACING;
+import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
 
 public class ElfChargeStationVisual extends KineticBlockEntityVisual<ElfChargeStationBlockEntity> {
 
     protected final RotatingInstance shaft;
-    protected final RotatingInstance fan;
     final Direction direction;
     private final Direction opposite;
 
     public ElfChargeStationVisual(VisualizationContext context, ElfChargeStationBlockEntity blockEntity, float partialTick) {
         super(context, blockEntity, partialTick);
-        direction = blockState.getValue(FACING);
+        direction = blockState.getValue(HORIZONTAL_FACING);
 
         opposite = direction.getOpposite();
         shaft = instancerProvider().instancer(AllInstanceTypes.ROTATING, Models.partial(AllPartialModels.SHAFT_HALF))
                 .createInstance();
-        fan = instancerProvider().instancer(AllInstanceTypes.ROTATING, Models.partial(AllPartialModels.ENCASED_FAN_INNER))
-                .createInstance();
 
         shaft.setup(blockEntity)
-                .setPosition(getVisualPosition())
-                .rotateToFace(Direction.SOUTH, opposite)
-                .setChanged();
-
-        fan.setup(blockEntity, getFanSpeed())
                 .setPosition(getVisualPosition())
                 .rotateToFace(Direction.SOUTH, opposite)
                 .setChanged();
@@ -57,8 +50,6 @@ public class ElfChargeStationVisual extends KineticBlockEntityVisual<ElfChargeSt
     public void update(float pt) {
         shaft.setup(blockEntity)
                 .setChanged();
-        fan.setup(blockEntity, getFanSpeed())
-                .setChanged();
     }
 
     @Override
@@ -67,19 +58,16 @@ public class ElfChargeStationVisual extends KineticBlockEntityVisual<ElfChargeSt
         relight(behind, shaft);
 
         BlockPos inFront = pos.relative(direction);
-        relight(inFront, fan);
     }
 
     @Override
     protected void _delete() {
         shaft.delete();
-        fan.delete();
     }
 
     @Override
     public void collectCrumblingInstances(Consumer<Instance> consumer) {
         consumer.accept(shaft);
-        consumer.accept(fan);
     }
 
 }

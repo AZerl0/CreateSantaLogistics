@@ -1,0 +1,6 @@
+{
+  "parent": "santa_logistics:item/template_present",
+  "textures": {
+    "texture": "santa_logistics:item/yellow_present"
+  }
+}

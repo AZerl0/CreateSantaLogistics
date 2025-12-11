@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,occupied=false": {
+      "model": "santa_logistics:block/elf_charge_station",
+      "y": 90
+    },
+    "facing=east,occupied=true": {
+      "model": "santa_logistics:block/elf_charge_station",
+      "y": 90
+    },
+    "facing=north,occupied=false": {
+      "model": "santa_logistics:block/elf_charge_station"
+    },
+    "facing=north,occupied=true": {
+      "model": "santa_logistics:block/elf_charge_station"
+    },
+    "facing=south,occupied=false": {
+      "model": "santa_logistics:block/elf_charge_station",
+      "y": 180
+    },
+    "facing=south,occupied=true": {
+      "model": "santa_logistics:block/elf_charge_station",
+      "y": 180
+    },
+    "facing=west,occupied=false": {
+      "model": "santa_logistics:block/elf_charge_station",
+      "y": 270
+    },
+    "facing=west,occupied=true": {
+      "model": "santa_logistics:block/elf_charge_station",
+      "y": 270
+    }
+  }
+}

@@ -5,6 +5,7 @@ import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.world.entity.RoboElf;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 
 @MethodsReturnNonnullByDefault
@@ -14,6 +15,6 @@ public class ElfChargeStationBlockEntity extends KineticBlockEntity {
     }
 
     public void update(RoboElf roboElf) {
-        roboElf.insertCharge(speed/16);
+        roboElf.insertCharge(Mth.abs(speed)/16);
     }
 }

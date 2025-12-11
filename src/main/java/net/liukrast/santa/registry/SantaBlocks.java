@@ -1,6 +1,7 @@
 package net.liukrast.santa.registry;
 
 import net.liukrast.santa.SantaConstants;
+import net.liukrast.santa.world.level.block.ChristmasTreeBlock;
 import net.liukrast.santa.world.level.block.ElfChargeStationBlock;
 import net.liukrast.santa.world.level.block.SantaDockBlock;
 import net.liukrast.santa.world.level.block.SantaDoorBlock;
@@ -22,14 +23,16 @@ public class SantaBlocks {
     private static final DeferredRegister.Blocks REGISTER = DeferredRegister.createBlocks(SantaConstants.MOD_ID);
     private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(SantaConstants.MOD_ID);
 
-    public static final DeferredBlock<SantaDockBlock> SANTA_DOCK = REGISTER.register("santa_dock", () -> new SantaDockBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
-    public static final DeferredBlock<SantaDoorBlock> SANTA_DOOR = REGISTER.register("santa_door", () -> new SantaDoorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+    public static final DeferredBlock<ChristmasTreeBlock> CHRISTMAS_TREE = register("christmas_tree", () -> new ChristmasTreeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_PLANKS)));
+    public static final DeferredBlock<SantaDockBlock> SANTA_DOCK = register("santa_dock", () -> new SantaDockBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+    public static final DeferredBlock<SantaDoorBlock> SANTA_DOOR = register("santa_door", () -> new SantaDoorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
     public static final DeferredBlock<ElfChargeStationBlock> ELF_CHARGE_STATION = register("elf_charge_station", () -> new ElfChargeStationBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)), SantaStressImpacts.init(() -> 2));
 
     static {
         ITEMS.register("santa_dock", () -> new BlockItem(SANTA_DOCK.get(), new Item.Properties()));
         ITEMS.register("santa_door", () -> new BlockItem(SANTA_DOOR.get(), new Item.Properties()));
         ITEMS.register("elf_charge_station", () -> new BlockItem(ELF_CHARGE_STATION.get(), new Item.Properties()));
+        ITEMS.register("christmas_tree", () -> new BlockItem(CHRISTMAS_TREE.get(), new Item.Properties()));
     }
 
     @SafeVarargs

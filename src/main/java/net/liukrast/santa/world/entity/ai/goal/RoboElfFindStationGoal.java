@@ -27,7 +27,7 @@ public class RoboElfFindStationGoal extends MoveToBlockGoal {
 
     @Override
     public boolean canUse() {
-        return elf.getCharge()/elf.getMaxCharge() < (SantaConfig.ELF_RECHARGE_PERCENTAGE.getAsInt()/100f) && this.findNearestBlock();
+        return elf.getStress() < 70 && elf.getCharge()/elf.getMaxCharge() < (SantaConfig.ELF_RECHARGE_PERCENTAGE.getAsInt()/100f) && this.findNearestBlock();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class RoboElfFindStationGoal extends MoveToBlockGoal {
                         BlockState state = level.getBlockState(blockpos$mutableblockpos);
                         if(!state.is(SantaBlocks.ELF_CHARGE_STATION.get())) continue;
                         if(state.getValue(ElfChargeStationBlock.OCCUPIED)) continue;
-                        var dir = state.getValue(ElfChargeStationBlock.FACING);
+                        var dir = state.getValue(ElfChargeStationBlock.HORIZONTAL_FACING);
                         var targetPos = blockpos$mutableblockpos.relative(dir);
                         if(!level.isEmptyBlock(targetPos)) continue;
                         this.blockPos = targetPos;

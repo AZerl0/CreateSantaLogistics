@@ -6,22 +6,31 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.liukrast.santa.DeployerGoggleInformation;
+import net.liukrast.santa.SantaConfig;
 import net.liukrast.santa.SantaLang;
 import net.liukrast.santa.registry.SantaAttributes;
 import net.liukrast.santa.registry.SantaBlocks;
+import net.liukrast.santa.world.entity.ai.goal.RoboElfCollectPackageGoal;
+import net.liukrast.santa.world.entity.ai.goal.RoboElfCreatePackageGoal;
 import net.liukrast.santa.world.entity.ai.goal.RoboElfFindStationGoal;
+import net.liukrast.santa.world.item.PresentItem;
 import net.liukrast.santa.world.level.block.ElfChargeStationBlock;
 import net.liukrast.santa.world.level.block.entity.ElfChargeStationBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -30,6 +39,8 @@ import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,6 +53,9 @@ import java.util.List;
 @NonnullDefault
 public class RoboElf extends PathfinderMob implements DeployerGoggleInformation {
     private static final EntityDataAccessor<Float> CHARGE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> STRESS_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
+    private int unstressCooldown = 0;
+
     @Nullable
     private ElfChargeStationBlockEntity chargeStation = null;
     public RoboElf(EntityType<? extends PathfinderMob> entityType, Level level) {
@@ -51,8 +65,11 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
 
     @Override
     protected void registerGoals() {
+        this.goalSelector.addGoal(0, new RoboElfCreatePackageGoal(this, 100));
         this.goalSelector.addGoal(0, new RoboElfFindStationGoal(this, 1.5));
-        this.goalSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, PackageEntity.class, true));
+        this.goalSelector.addGoal(0, new NearestAttackableTargetGoal<>(this, PackageEntity.class, true, pack -> pack instanceof PackageEntity pe && !(pe.box.getItem() instanceof PresentItem)));
+        this.goalSelector.addGoal(0, new RoboElfCollectPackageGoal(this, 1.25, false));
+        // Secondary tasks
         this.goalSelector.addGoal(1, new FloatGoal(this));
         this.goalSelector.addGoal(2, new PanicGoal(this, 1.25));
         this.goalSelector.addGoal(3, new WaterAvoidingRandomStrollGoal(this, 1.0));
@@ -64,6 +81,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(CHARGE_ID, 1f);
+        builder.define(STRESS_ID, 0);
     }
 
     public float getCharge() {
@@ -97,7 +115,19 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
             return charge + amount - getMaxCharge();
         }
         setCharge(charge + amount);
-        return amount;
+        return 0;
+    }
+
+    public int getStress() {
+        return this.entityData.get(STRESS_ID);
+    }
+
+    public void setStress(int stress) {
+        this.entityData.set(STRESS_ID, Mth.clamp(stress, 0, 100));
+    }
+
+    public void stress(int amount) {
+        setStress(getStress()+amount);
     }
 
     public static AttributeSupplier.Builder createRoboElfAttributes() {
@@ -118,6 +148,19 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
     @Override
     public void tick() {
         super.tick();
+        if(level().isClientSide) return;
+        if(unstressCooldown > 0) unstressCooldown-=(getCharge() == 0 || isCharging() ? 10 : 1);
+        else {
+            stress(-1);
+            unstressCooldown = SantaConfig.ELF_UNSTRESS_COOLDOWN.getAsInt();
+        }
+        if(getStress() > 70 && getCharge() > 0) {
+            extractCharge(0.1f);
+            ((ServerLevel)level()).sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, getX(), getY(), getZ(), 1, 0,  1, 0, 0.05);
+        }
+        if(getCharge() == 0) {
+            navigation.stop();
+        }
         if(chargeStation != null && chargeStation.isRemoved()) {
             setCharging(null);
             reloadFlags();
@@ -128,12 +171,14 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
             return;
         }
         var a = blockPosition();
-        if(!chargeStation.getBlockPos().relative(chargeStation.getBlockState().getValue(ElfChargeStationBlock.FACING)).equals(a)) {
+        if(!chargeStation.getBlockPos().relative(chargeStation.getBlockState().getValue(ElfChargeStationBlock.HORIZONTAL_FACING)).equals(a)) {
             setCharging(null);
             reloadFlags();
             return;
         }
         chargeStation.update(this);
+        Vec3 pos1 = chargeStation.getBlockPos().relative(chargeStation.getBlockState().getValue(ElfChargeStationBlock.HORIZONTAL_FACING), 2).getCenter();
+        this.lookControl.setLookAt(pos1.x, pos1.y, pos1.z);
         if(this.getCharge() >= this.getMaxCharge()) setCharging(null);
         reloadFlags();
     }
@@ -148,7 +193,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
     @Override
     public void travel(Vec3 travelVector) {
         super.travel(travelVector);
-        double motion = travelVector.length();
+        double motion = travelVector.length() * (getStress()/10f);
         extractCharge((float) motion);
     }
 
@@ -158,7 +203,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
         SantaLang.translate("gui.robo_elf.title")
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip);
-        IRotate.StressImpact.getFormattedStressText(0)
+        IRotate.StressImpact.getFormattedStressText(getStress()/100f)
                 .forGoggles(tooltip);
         SantaLang.translate("gui.robo_elf.capacity")
                 .style(ChatFormatting.GRAY)
@@ -176,6 +221,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putFloat("Charge", this.getCharge());
+        compound.putInt("Stress", this.getStress());
     }
 
     @Override
@@ -183,6 +229,8 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
         super.readAdditionalSaveData(compound);
         if(compound.contains("Charge", Tag.TAG_ANY_NUMERIC))
             this.setCharge(compound.getFloat("Charge"));
+        if(compound.contains("Stress", Tag.TAG_ANY_NUMERIC))
+            this.setStress(compound.getInt("Stress"));
     }
 
     @Override
@@ -221,9 +269,37 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
             BlockState state = level.getBlockState(pos.relative(direction));
             if(!state.is(SantaBlocks.ELF_CHARGE_STATION.get())) continue;
             if(state.getValue(ElfChargeStationBlock.OCCUPIED)) continue;
-            if(!state.getValue(ElfChargeStationBlock.FACING).getOpposite().equals(direction)) continue;
+            if(!state.getValue(ElfChargeStationBlock.HORIZONTAL_FACING).getOpposite().equals(direction)) continue;
             return pos.relative(direction);
         }
         return null;
+    }
+
+    public boolean isCharging() {
+        return chargeStation != null;
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if(player.isShiftKeyDown() && insertCharge(1)<=0) {
+            player.causeFoodExhaustion(2);
+            return InteractionResult.SUCCESS;
+        }
+        ItemStack stack = player.getItemInHand(hand);
+        if(stack.is(Items.COOKIE) && getCharge() == 0) {
+            stress(-1);
+            stack.consume(1, player);
+            return InteractionResult.SUCCESS;
+        } else if(stack.is(Items.ROTTEN_FLESH)) {
+            stress(5);
+            stack.consume(1, player);
+            return InteractionResult.SUCCESS;
+        }
+        return super.mobInteract(player, hand);
+    }
+
+    @Override
+    protected void dropEquipment() {
+        this.spawnAtLocation(getMainHandItem());
     }
 }
