@@ -1,6 +1,7 @@
 package net.liukrast.santa.datagen;
 
 import net.liukrast.santa.SantaConstants;
+import net.liukrast.santa.registry.SantaBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -13,9 +14,12 @@ public class SantaLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         SantaConstants.getElementEntries(BuiltInRegistries.ITEM)
+                .filter(e -> e.getValue() != SantaBlocks.CRYOLITE_BLOCK.get().asItem())
                 .forEach(e -> add(e.getValue().getDescriptionId(), autoName(e.getKey())));
         SantaConstants.getElementEntries(BuiltInRegistries.ENTITY_TYPE)
                 .forEach(e -> add(e.getValue(), autoName(e.getKey())));
+
+        add(SantaBlocks.CRYOLITE_BLOCK.get(), "Block of Cryolite");
 
         add("itemGroup.santa_logistics", "Create: Santa Logistics");
         add("commands.santa.empty", "§cNo santa dock registered");

@@ -2,6 +2,7 @@ package net.liukrast.santa;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
 import net.liukrast.santa.datagen.*;
+import net.liukrast.santa.datagen.recipe.SantaCrushingRecipeGen;
 import net.liukrast.santa.datagen.tags.SantaBlockTagsProvider;
 import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
@@ -59,6 +60,7 @@ public class Santa {
         NeoForge.EVENT_BUS.addListener(this::loadLevel);
         eventBus.register(this);
         container.registerConfig(ModConfig.Type.COMMON, SantaConfig.SPEC);
+        SantaContraptionMovementSettings.init();
     }
 
     public void registerCommands(RegisterCommandsEvent event) {
@@ -187,6 +189,7 @@ public class Santa {
         ExistingFileHelper helper = event.getExistingFileHelper();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
         generator.addProvider(event.includeClient(), new SantaLanguageProvider(packOutput));
+        generator.addProvider(event.includeClient(), new SantaBlockModelProvider(packOutput, helper));
         generator.addProvider(event.includeClient(), new SantaBlockStateProvider(packOutput, helper));
         generator.addProvider(event.includeClient(), new SantaItemModelProvider(packOutput, helper));
         var blockTagProvider = new SantaBlockTagsProvider(packOutput, lookupProvider, helper);
@@ -197,5 +200,6 @@ public class Santa {
                         new LootTableProvider.SubProviderEntry(SantaBlockLootSubProvider::new, LootContextParamSets.BLOCK)
                 ), lookupProvider));
         generator.addProvider(event.includeServer(), new SantaRecipeProvider(packOutput, dataPackProvider.getRegistryProvider()));
+        generator.addProvider(event.includeServer(), new SantaCrushingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
     }
 }

@@ -1,6 +1,7 @@
 package net.liukrast.santa.datagen;
 
 import net.liukrast.santa.SantaConstants;
+import net.liukrast.santa.registry.SantaBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.BlockLootSubProvider;
@@ -19,13 +20,15 @@ public class SantaBlockLootSubProvider extends BlockLootSubProvider {
 
     @Override
     protected void generate() {
-        List<Predicate<Block>> exceptions = List.of();
-        //noinspection RedundantOperationOnEmptyContainer
+        List<Predicate<Block>> exceptions = List.of(b -> b == SantaBlocks.BUDDING_CRYOLITE.get());
         SantaConstants.getElements(BuiltInRegistries.BLOCK).filter(b -> exceptions.stream().allMatch(k -> k.test(b))).forEach(this::dropSelf);
+        this.add(SantaBlocks.BUDDING_CRYOLITE.get(), noDrop());
     }
 
     @Override
     protected @NotNull Iterable<Block> getKnownBlocks() {
-        return BuiltInRegistries.BLOCK.stream().filter(b -> BuiltInRegistries.BLOCK.getKey(b).getNamespace().equals(SantaConstants.MOD_ID)).toList();
+        return BuiltInRegistries.BLOCK.stream()
+                .filter(b -> BuiltInRegistries.BLOCK.getKey(b).getNamespace().equals(SantaConstants.MOD_ID))
+                .toList();
     }
 }

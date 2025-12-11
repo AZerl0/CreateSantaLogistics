@@ -5,8 +5,10 @@ import net.liukrast.santa.registry.SantaBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.BlockTags;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.internal.NeoForgeBlockTagsProvider;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
@@ -26,5 +28,10 @@ public class SantaBlockTagsProvider extends BlockTagsProvider {
         axe.add(SantaBlocks.CHRISTMAS_TREE.get());
         pick.add(SantaBlocks.SANTA_DOCK.get());
         pick.add(SantaBlocks.ELF_CHARGE_STATION.get());
+        pick.add(SantaBlocks.CRYOLITE_BLOCK.get());
+        pick.add(SantaBlocks.BUDDING_CRYOLITE.get());
+        this.tag(BlockTags.CRYSTAL_SOUND_BLOCKS).add(SantaBlocks.CRYOLITE_BLOCK.get(), SantaBlocks.BUDDING_CRYOLITE.get());
+        this.tag(BlockTags.VIBRATION_RESONATORS).add(SantaBlocks.CRYOLITE_BLOCK.get());
+        tag(Tags.Blocks.BUDDING_BLOCKS).add(SantaBlocks.BUDDING_CRYOLITE.get());
     }
 }

@@ -1,5 +1,11 @@
-// 1.21.1	2025-12-10T18:02:32.1320979	Loot Tables
+// 1.21.1	2025-12-11T11:30:52.6137751	Loot Tables
+8d2cdd9ffba92aaadc5327e02d67a657ea6ae210 data/santa_logistics/loot_table/blocks/budding_cryolite.json
 da8343cef627ccb3a420fc04a8f2f4f153c25a3f data/santa_logistics/loot_table/blocks/christmas_tree.json
+e37617df1af5bb66eecc762ad5c38c06839cb230 data/santa_logistics/loot_table/blocks/cryolite_block.json
+b87b18997b84d62f09ea9b5589f0218df5d414a3 data/santa_logistics/loot_table/blocks/cryolite_cluster.json
 14c8431541bbb86691a2bc8dd8de4f908716faa4 data/santa_logistics/loot_table/blocks/elf_charge_station.json
+61acb0681b3f2137012398f1fceedae2dc6dd1c0 data/santa_logistics/loot_table/blocks/large_cryolite_bud.json
+c11ea8ef94b46305f38d3a507574c09c652e6b04 data/santa_logistics/loot_table/blocks/medium_cryolite_bud.json
 d02c4fd97d07dc3341e3fe655e99a9e37066d230 data/santa_logistics/loot_table/blocks/santa_dock.json
 1766463e354cb45a05d529591e74373129640d56 data/santa_logistics/loot_table/blocks/santa_door.json
+01d8782812230a1f67678920fb9c5cd7d8513ed9 data/santa_logistics/loot_table/blocks/small_cryolite_bud.json

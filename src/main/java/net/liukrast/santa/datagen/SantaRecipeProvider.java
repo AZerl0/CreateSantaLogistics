@@ -3,6 +3,7 @@ package net.liukrast.santa.datagen;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import net.liukrast.santa.registry.SantaBlocks;
+import net.liukrast.santa.registry.SantaItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -32,6 +33,7 @@ public class SantaRecipeProvider extends RecipeProvider implements IConditionBui
                 .define('D', itemTag("c:plates/iron"))
                 .define('E', AllBlocks.ANDESITE_CASING)
                 .unlockedBy("has_christmas_tree", has(SantaBlocks.CHRISTMAS_TREE)).save(recipeOutput);
+        twoByTwoPacker(recipeOutput, RecipeCategory.BUILDING_BLOCKS, SantaBlocks.CRYOLITE_BLOCK, SantaItems.CRYOLITE_SHARD);
     }
 
     private static TagKey<Item> itemTag(String value) {

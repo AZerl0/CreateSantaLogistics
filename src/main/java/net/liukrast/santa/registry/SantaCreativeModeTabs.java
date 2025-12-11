@@ -16,12 +16,12 @@ public class SantaCreativeModeTabs {
                 .title(Component.translatable("itemGroup.santa_logistics"))
                 .icon(SantaBlocks.SANTA_DOCK.asItem()::getDefaultInstance)
                 .displayItems((pars, out) -> {
-                    out.accept(SantaBlocks.SANTA_DOCK);
-                    out.accept(SantaBlocks.SANTA_DOOR);
-                    out.accept(SantaItems.ROBO_ELF_SPAWN_EGG);
-                    out.accept(SantaBlocks.ELF_CHARGE_STATION);
-                    SantaItems.PRESENTS.forEach(out::accept);
-                    out.accept(SantaBlocks.CHRISTMAS_TREE);
+                    for(var entry : SantaBlocks.ITEMS.getEntries()) {
+                        out.accept(entry.get());
+                    }
+                    for(var entry : SantaItems.REGISTER.getEntries()) {
+                        out.accept(entry.get());
+                    }
                 })
                 .build());
     }

@@ -19,6 +19,12 @@ public class SantaBlockStateProvider extends BlockStateProvider {
     protected void registerStatesAndModels() {
         horizontalBlock(SantaBlocks.ELF_CHARGE_STATION.get());
         MultiPartAPIStateHelper.multiPartBlock(this, SantaBlocks.CHRISTMAS_TREE.get());
+        simpleCubeAll(SantaBlocks.CRYOLITE_BLOCK.get());
+        simpleCubeAll(SantaBlocks.BUDDING_CRYOLITE.get());
+    }
+
+    private void simpleCubeAll(Block block) {
+        simpleBlockWithItem(block, cubeAll(block));
     }
 
     private void horizontalBlock(Block block) {
