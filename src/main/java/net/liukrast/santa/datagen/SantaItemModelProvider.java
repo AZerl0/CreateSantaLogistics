@@ -6,11 +6,15 @@ import net.liukrast.santa.registry.SantaItems;
 import net.liukrast.santa.world.item.PresentItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredItem;
+
+import java.util.Objects;
 
 public class SantaItemModelProvider extends ItemModelProvider {
     public SantaItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
@@ -29,5 +33,19 @@ public class SantaItemModelProvider extends ItemModelProvider {
                     .texture("texture", SantaConstants.id("item/" + box.getId().getPath()));
         }
         basicItem(SantaBlocks.CHRISTMAS_TREE.asItem());
+
+        panelBlockItem(SantaBlocks.CRYOLITE_CLUSTER.get());
+        panelBlockItem(SantaBlocks.LARGE_CRYOLITE_BUD.get());
+        panelBlockItem(SantaBlocks.MEDIUM_CRYOLITE_BUD.get());
+        panelBlockItem(SantaBlocks.SMALL_CRYOLITE_BUD.get());
+        basicItem(SantaItems.CRYOLITE_SHARD.get());
+        basicItem(SantaItems.CRYOLITE_POWDER.get());
+    }
+
+    private void panelBlockItem(Block block) {
+        ResourceLocation item = Objects.requireNonNull(BuiltInRegistries.BLOCK.getKey(block));
+        getBuilder(item.toString())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(item.getNamespace(), "block/" + item.getPath()));
     }
 }

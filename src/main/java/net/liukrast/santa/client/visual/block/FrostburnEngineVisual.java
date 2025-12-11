@@ -7,31 +7,24 @@ import com.simibubi.create.foundation.render.AllInstanceTypes;
 import dev.engine_room.flywheel.api.instance.Instance;
 import dev.engine_room.flywheel.api.visualization.VisualizationContext;
 import dev.engine_room.flywheel.lib.model.Models;
-import net.liukrast.santa.world.level.block.entity.ElfChargeStationBlockEntity;
+import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 
 import java.util.function.Consumer;
 
-import static net.minecraft.world.level.block.state.properties.BlockStateProperties.HORIZONTAL_FACING;
-
-public class ElfChargeStationVisual extends KineticBlockEntityVisual<ElfChargeStationBlockEntity> {
-
+public class FrostburnEngineVisual extends KineticBlockEntityVisual<FrostburnEngineBlockEntity> {
     protected final RotatingInstance shaft;
-    final Direction direction;
-    private final Direction opposite;
 
-    public ElfChargeStationVisual(VisualizationContext context, ElfChargeStationBlockEntity blockEntity, float partialTick) {
+    public FrostburnEngineVisual(VisualizationContext context, FrostburnEngineBlockEntity blockEntity, float partialTick) {
         super(context, blockEntity, partialTick);
-        direction = blockState.getValue(HORIZONTAL_FACING);
 
-        opposite = direction.getOpposite();
         shaft = instancerProvider().instancer(AllInstanceTypes.ROTATING, Models.partial(AllPartialModels.SHAFT_HALF))
                 .createInstance();
 
         shaft.setup(blockEntity)
                 .setPosition(getVisualPosition())
-                .rotateToFace(Direction.SOUTH, opposite)
+                .rotateToFace(Direction.SOUTH, Direction.DOWN)
                 .setChanged();
     }
 
@@ -43,7 +36,7 @@ public class ElfChargeStationVisual extends KineticBlockEntityVisual<ElfChargeSt
 
     @Override
     public void updateLight(float partialTick) {
-        BlockPos behind = pos.relative(opposite);
+        BlockPos behind = pos.relative(Direction.DOWN);
         relight(behind, shaft);
     }
 
@@ -56,5 +49,4 @@ public class ElfChargeStationVisual extends KineticBlockEntityVisual<ElfChargeSt
     public void collectCrumblingInstances(Consumer<Instance> consumer) {
         consumer.accept(shaft);
     }
-
 }

@@ -1,4 +1,4 @@
-package net.liukrast.santa.datagen;
+package net.liukrast.santa.datagen.recipe;
 
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;

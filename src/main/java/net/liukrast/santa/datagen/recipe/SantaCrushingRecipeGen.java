@@ -10,16 +10,15 @@ import net.minecraft.data.PackOutput;
 import java.util.concurrent.CompletableFuture;
 
 public class SantaCrushingRecipeGen extends CrushingRecipeGen {
-    GeneratedRecipe
-
-    CRYOLITE_CLUSTER = create(() -> SantaBlocks.CRYOLITE_CLUSTER, b -> b.duration(150)
-            .output(SantaItems.CRYOLITE_SHARD, 7)
-            .output(.5f, SantaItems.CRYOLITE_SHARD)),
-    CRYOLITE_BLOCK = create(() -> SantaBlocks.CRYOLITE_BLOCK, b -> b.duration(150)
-            .output(SantaItems.CRYOLITE_SHARD, 3)
-            .output(.5f, SantaItems.CRYOLITE_SHARD));
 
     public SantaCrushingRecipeGen(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries, SantaConstants.MOD_ID);
+
+        create(() -> SantaBlocks.CRYOLITE_BLOCK, b -> b.duration(150)
+                .output(SantaItems.CRYOLITE_SHARD, 3)
+                .output(.5f, SantaItems.CRYOLITE_SHARD));
+        create(() -> SantaBlocks.CRYOLITE_CLUSTER, b -> b.duration(150)
+                .output(SantaItems.CRYOLITE_SHARD, 7)
+                .output(.5f, SantaItems.CRYOLITE_SHARD));
     }
 }

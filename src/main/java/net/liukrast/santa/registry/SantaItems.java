@@ -16,12 +16,12 @@ public class SantaItems {
     private SantaItems() {}
     static final DeferredRegister.Items REGISTER = DeferredRegister.createItems(SantaConstants.MOD_ID);
 
-    public static final DeferredItem<DeferredSpawnEggItem> ROBO_ELF_SPAWN_EGG = REGISTER.register("robo_elf_spawn_egg", () -> new DeferredSpawnEggItem(SantaEntityTypes.ROBO_ELF, 0xe4b763, 0x61a53f, new Item.Properties()));
-    public static final List<DeferredItem<PresentItem>> PRESENTS = SantaPackages.PRESENTS.stream()
-            .map(k -> REGISTER.register(k.type() + "_present", () -> new PresentItem(new Item.Properties().stacksTo(1), k))).toList();
     public static final DeferredItem<Item> CRYOLITE_SHARD = REGISTER.register("cryolite_shard", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
     public static final DeferredItem<Item> CRYOLITE_POWDER = REGISTER.register("cryolite_powder", () -> new Item(new Item.Properties()));
 
+    public static final DeferredItem<DeferredSpawnEggItem> ROBO_ELF_SPAWN_EGG = REGISTER.register("robo_elf_spawn_egg", () -> new DeferredSpawnEggItem(SantaEntityTypes.ROBO_ELF, 0xe4b763, 0x61a53f, new Item.Properties()));
+    public static final List<DeferredItem<PresentItem>> PRESENTS = SantaPackages.PRESENTS.stream()
+            .map(k -> REGISTER.register(k.type() + "_present", () -> new PresentItem(new Item.Properties().stacksTo(1), k))).toList();
 
     public static void init(IEventBus eventBus) {
         REGISTER.register(eventBus);

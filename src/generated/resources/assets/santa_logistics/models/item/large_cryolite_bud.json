@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "santa_logistics:block/large_cryolite_bud"
+  }
+}

@@ -2,7 +2,11 @@ package net.liukrast.santa;
 
 import com.simibubi.create.content.logistics.box.PackageItem;
 import net.liukrast.santa.datagen.*;
+import net.liukrast.santa.datagen.loot.SantaBlockLootSubProvider;
+import net.liukrast.santa.datagen.loot.SantaEntityLootSubProvider;
 import net.liukrast.santa.datagen.recipe.SantaCrushingRecipeGen;
+import net.liukrast.santa.datagen.recipe.SantaMillingRecipeGen;
+import net.liukrast.santa.datagen.recipe.SantaRecipeProvider;
 import net.liukrast.santa.datagen.tags.SantaBlockTagsProvider;
 import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
@@ -58,9 +62,9 @@ public class Santa {
         NeoForge.EVENT_BUS.addListener(this::levelTickPost);
         NeoForge.EVENT_BUS.addListener(this::loadPlayer);
         NeoForge.EVENT_BUS.addListener(this::loadLevel);
+        eventBus.addListener(SantaContraptionMovementSettings::init);
         eventBus.register(this);
         container.registerConfig(ModConfig.Type.COMMON, SantaConfig.SPEC);
-        SantaContraptionMovementSettings.init();
     }
 
     public void registerCommands(RegisterCommandsEvent event) {
@@ -197,9 +201,11 @@ public class Santa {
         var dataPackProvider = new SantaDatapackBuiltinEntriesProvider(packOutput, lookupProvider);
         generator.addProvider(event.includeServer(), new LootTableProvider(packOutput, Collections.emptySet(),
                 List.of(
-                        new LootTableProvider.SubProviderEntry(SantaBlockLootSubProvider::new, LootContextParamSets.BLOCK)
+                        new LootTableProvider.SubProviderEntry(SantaBlockLootSubProvider::new, LootContextParamSets.BLOCK),
+                        new LootTableProvider.SubProviderEntry(SantaEntityLootSubProvider::new, LootContextParamSets.ENTITY)
                 ), lookupProvider));
         generator.addProvider(event.includeServer(), new SantaRecipeProvider(packOutput, dataPackProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new SantaCrushingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
+        generator.addProvider(event.includeServer(), new SantaMillingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
     }
 }

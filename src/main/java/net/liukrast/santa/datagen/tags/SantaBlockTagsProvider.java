@@ -8,7 +8,6 @@ import net.minecraft.tags.BlockTags;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.common.data.internal.NeoForgeBlockTagsProvider;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
@@ -30,8 +29,13 @@ public class SantaBlockTagsProvider extends BlockTagsProvider {
         pick.add(SantaBlocks.ELF_CHARGE_STATION.get());
         pick.add(SantaBlocks.CRYOLITE_BLOCK.get());
         pick.add(SantaBlocks.BUDDING_CRYOLITE.get());
+        pick.add(SantaBlocks.CRYOLITE_CLUSTER.get());
+        pick.add(SantaBlocks.LARGE_CRYOLITE_BUD.get());
+        pick.add(SantaBlocks.MEDIUM_CRYOLITE_BUD.get());
+        pick.add(SantaBlocks.SMALL_CRYOLITE_BUD.get());
         this.tag(BlockTags.CRYSTAL_SOUND_BLOCKS).add(SantaBlocks.CRYOLITE_BLOCK.get(), SantaBlocks.BUDDING_CRYOLITE.get());
         this.tag(BlockTags.VIBRATION_RESONATORS).add(SantaBlocks.CRYOLITE_BLOCK.get());
         tag(Tags.Blocks.BUDDING_BLOCKS).add(SantaBlocks.BUDDING_CRYOLITE.get());
+        tag(Tags.Blocks.CLUSTERS).add(SantaBlocks.CRYOLITE_CLUSTER.get());
     }
 }

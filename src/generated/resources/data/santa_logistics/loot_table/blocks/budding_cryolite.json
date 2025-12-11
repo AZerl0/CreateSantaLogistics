@@ -1,21 +1,4 @@
 {
   "type": "minecraft:block",
-  "pools": [
-    {
-      "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ],
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "name": "santa_logistics:budding_cryolite"
-        }
-      ],
-      "rolls": 1.0
-    }
-  ],
   "random_sequence": "santa_logistics:blocks/budding_cryolite"
 }
