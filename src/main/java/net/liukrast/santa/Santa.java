@@ -11,7 +11,9 @@ import net.liukrast.santa.datagen.tags.SantaBlockTagsProvider;
 import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
 import net.liukrast.santa.world.SantaContainer;
+import net.liukrast.santa.world.level.block.FrostburnEngineBlock;
 import net.liukrast.santa.world.level.block.SantaDocks;
+import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
 import net.liukrast.santa.world.level.block.entity.SantaDockBlockEntity;
 import net.liukrast.santa.world.level.levelgen.SantaBase;
 import net.minecraft.core.BlockPos;
@@ -22,12 +24,15 @@ import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -207,5 +212,25 @@ public class Santa {
         generator.addProvider(event.includeServer(), new SantaRecipeProvider(packOutput, dataPackProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new SantaCrushingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new SantaMillingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
+    }
+
+    @SubscribeEvent
+    public void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlock(
+                Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, __, side) -> {
+                    var block = state.getBlock();
+                    if(!(block instanceof FrostburnEngineBlock engine)) return null;
+                    int index = state.getValue(engine.getPartsProperty());
+                    if(index <= 26) return null;
+                    var statePos = engine.getPositions().get(index);
+                    var direction = engine.getDirection(state);
+                    var origin = engine.getOrigin(pos, statePos, direction);
+                    var ten = engine.getPositions().get(10);
+                    if(!(level.getBlockEntity(engine.getRelative(origin, ten, direction)) instanceof FrostburnEngineBlockEntity be)) return null;
+                    return be.getHandler();
+                },
+                SantaBlocks.FROSTBURN_ENGINE.get()
+        );
     }
 }
