@@ -6,14 +6,17 @@ import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.block.IBE;
 import net.liukrast.multipart.block.AbstractMultipartBlock;
 import net.liukrast.santa.DeployerGoggleInformation;
-import net.liukrast.santa.SantaLang;
+import net.liukrast.santa.client.gui.screens.FrostburnEngineScreen;
 import net.liukrast.santa.mixin.KineticBlockEntityAccessor;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -22,6 +25,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -33,10 +37,6 @@ import java.util.List;
 @SuppressWarnings("deprecation")
 @NonnullDefault
 public class FrostburnEngineBlock extends AbstractMultipartBlock implements IRotate, IBE<FrostburnEngineBlockEntity>, DeployerGoggleInformation {
-    private static final VoxelShape BOTTOM = Shapes.or(
-            box(0,0,0,16,3,16),
-            box(0,12,0,16,16,16)
-    );
 
     private static final VoxelShape TUBE = Shapes.or(
             box(3, 4, 3, 13, 16, 13)
@@ -190,8 +190,19 @@ public class FrostburnEngineBlock extends AbstractMultipartBlock implements IRot
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        int index = state.getValue(getPartsProperty());
-        if(index > 26) return TUBE;
-        return getPositions().get(index).getY() == 0 ? BOTTOM : super.getShape(state, level, pos, context);
+        return state.getValue(getPartsProperty()) > 26 ? TUBE : super.getShape(state, level, pos, context);
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if(state.getValue(getPartsProperty()) == 10) return InteractionResult.PASS;
+        var statePos = getPositions().get(state.getValue(getPartsProperty()));
+        var direction = getDirection(state);
+        BlockPos origin = getOrigin(pos, statePos, direction);
+        BlockPos ten = getPositions().get(10);
+        if(!level.isClientSide) return InteractionResult.SUCCESS;
+        if(!(level.getBlockEntity(getRelative(origin, ten, direction)) instanceof FrostburnEngineBlockEntity be)) return InteractionResult.PASS;
+        Minecraft.getInstance().setScreen(new FrostburnEngineScreen(be.overclock));
+        return InteractionResult.SUCCESS;
     }
 }

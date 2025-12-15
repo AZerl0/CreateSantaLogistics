@@ -1,6 +1,7 @@
-// 1.21.1	2025-12-11T14:57:49.7946998	Item Models: santa_logistics
+// 1.21.1	2025-12-14T22:04:38.3704504	Item Models: santa_logistics
 25af13465cf4f6408f3419d5800aac217401a8c6 assets/santa_logistics/models/item/blue_present.json
 7e487bab94ed7b6eb505fef145dc6a248d32f743 assets/santa_logistics/models/item/christmas_tree.json
+cc6a8e93c7bc6d9cb07f00b35bd2386fe44cf845 assets/santa_logistics/models/item/cryolite_bucket.json
 574a81b430fe607383de4b78e470646ebf72e765 assets/santa_logistics/models/item/cryolite_cluster.json
 285b74889d006cc78a2f4b1e745e31c3d7448698 assets/santa_logistics/models/item/cryolite_powder.json
 d8791ae8539fa6e25bc2dd065c857ec6f4fe5dbc assets/santa_logistics/models/item/cryolite_shard.json

@@ -13,6 +13,7 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
@@ -40,7 +41,7 @@ public class SantaBlockLootSubProvider extends BlockLootSubProvider {
                 not(SantaBlocks.MEDIUM_CRYOLITE_BUD),
                 not(SantaBlocks.LARGE_CRYOLITE_BUD)
         );
-        SantaConstants.getElements(BuiltInRegistries.BLOCK).filter(b -> exceptions.stream().allMatch(k -> k.test(b))).forEach(this::dropSelf);
+        SantaConstants.getElements(BuiltInRegistries.BLOCK).filter(b -> b.getLootTable() != BuiltInLootTables.EMPTY && exceptions.stream().allMatch(k -> k.test(b))).forEach(this::dropSelf);
         this.add(SantaBlocks.BUDDING_CRYOLITE.get(), noDrop());
         add(
                 SantaBlocks.CRYOLITE_CLUSTER.get(),

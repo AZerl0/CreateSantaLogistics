@@ -19,7 +19,11 @@ public class SantaLanguageProvider extends LanguageProvider {
         SantaConstants.getElementEntries(BuiltInRegistries.ENTITY_TYPE)
                 .forEach(e -> add(e.getValue(), autoName(e.getKey())));
 
+        add("fluid.santa_logistics.cryolite", "Cryolite");
         add(SantaBlocks.CRYOLITE_BLOCK.get(), "Block of Cryolite");
+        add("santa_logistics.tooltip.overclock", "Overclock Amount:");
+        add("santa_logistics.tooltip.temperature", "Temperature:");
+        add("santa_logistics.tooltip.temperature_per_tick", "per tick");
 
         add("itemGroup.santa_logistics", "Create: Santa Logistics");
         add("commands.santa.empty", "§cNo santa dock registered");

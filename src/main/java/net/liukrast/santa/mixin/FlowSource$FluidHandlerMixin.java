@@ -7,6 +7,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.simibubi.create.content.fluids.FlowSource;
 import com.simibubi.create.foundation.ICapabilityProvider;
 import net.createmod.catnip.math.BlockFace;
+import net.liukrast.santa.SantaConstants;
+import net.liukrast.santa.registry.SantaBlocks;
+import net.liukrast.santa.world.level.block.FrostburnEngineBlock;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -18,6 +22,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
+/**
+ * Maybe a deployer API feature
+ * */
+@Deprecated(forRemoval = true)
 @Mixin(FlowSource.FluidHandler.class)
 public abstract class FlowSource$FluidHandlerMixin extends FlowSource {
     @Shadow
@@ -32,11 +40,13 @@ public abstract class FlowSource$FluidHandlerMixin extends FlowSource {
     @ModifyExpressionValue(method = "manageSource", at = @At("MIXINEXTRAS:EXPRESSION"))
     private boolean manageSource(boolean original, @Local(argsOnly = true, name = "arg1") Level level, @Local(argsOnly = true, name = "arg2") BlockEntity networkBE) {
         if(!original) {
+            BlockPos pos = ((FlowSourceAccessor)this).getLocation().getConnectedPos();
             if(level instanceof ServerLevel serverLevel) {
-                fluidHandlerCache = ICapabilityProvider.of(BlockCapabilityCache.create(
+                if(SantaConstants.fluidCapabilityExtension(level.getBlockState(pos).getBlock()))
+                    fluidHandlerCache = ICapabilityProvider.of(BlockCapabilityCache.create(
                         Capabilities.FluidHandler.BLOCK,
                         serverLevel,
-                        ((FlowSourceAccessor)this).getLocation().getPos(),
+                        pos,
                         ((FlowSourceAccessor)this).getLocation().getOppositeFace(),
                         () -> !networkBE.isRemoved(),
                         () -> fluidHandlerCache = FlowSourceAccessor.getEMPTY()

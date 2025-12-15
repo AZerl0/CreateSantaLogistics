@@ -9,6 +9,10 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+/**
+ * Will be replaced with deployer API
+ * */
+@Deprecated(forRemoval = true)
 @Mixin(PackageItem.class)
 public class PackageItemMixin {
     @ModifyReturnValue(method = "getContents", at = @At("RETURN"))

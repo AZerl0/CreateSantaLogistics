@@ -32,6 +32,8 @@ public class SantaBlocks {
     public static final DeferredBlock<AmethystClusterBlock> MEDIUM_CRYOLITE_BUD = register("medium_cryolite_bud", () -> new AmethystClusterBlock(4,3,BlockBehaviour.Properties.ofFullCopy(Blocks.MEDIUM_AMETHYST_BUD)));
     public static final DeferredBlock<AmethystClusterBlock> SMALL_CRYOLITE_BUD = register("small_cryolite_bud", () -> new AmethystClusterBlock(3,4,BlockBehaviour.Properties.ofFullCopy(Blocks.SMALL_AMETHYST_BUD)));
     public static final DeferredBlock<Block> FROSTBURN_ENGINE = register("frostburn_engine", () -> new FrostburnEngineBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()), SantaStressImpacts.withStressCapacity(32), BlockStressValues.setGeneratorSpeed(32));
+    public static final DeferredBlock<Block> SHIELDED_STONE = register("shielded_stone", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)));
+    public static final DeferredBlock<Block> PRIME_CRYOLITE_BLOCK = register("prime_cryolite_block", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)));
 
     @SafeVarargs
     private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, Consumer<T>... applications) {

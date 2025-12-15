@@ -8,6 +8,10 @@ import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+/**
+ * Will be replaced with a Deployer API
+ * */
+@Deprecated(forRemoval = true)
 @Mixin(SawBlockEntity.class)
 public class SawBlockEntityMixin {
     @ModifyExpressionValue(method = "applyRecipe", at = @At(value = "INVOKE", target = "Lcom/simibubi/create/content/logistics/box/PackageItem;isPackage(Lnet/minecraft/world/item/ItemStack;)Z"))

@@ -7,6 +7,7 @@
   "block.santa_logistics.frostburn_engine": "Frostburn Engine",
   "block.santa_logistics.large_cryolite_bud": "Large Cryolite Bud",
   "block.santa_logistics.medium_cryolite_bud": "Medium Cryolite Bud",
+  "block.santa_logistics.prime_cryolite_block": "Prime Cryolite Block",
   "block.santa_logistics.santa_dock": "Santa Dock",
   "block.santa_logistics.santa_dock.status.connected": "§aConnected",
   "block.santa_logistics.santa_dock.status.connected.tooltip_0": "Santa will pass by this dock tonight",
@@ -19,6 +20,7 @@
   "block.santa_logistics.santa_dock.status.idle": "Idle",
   "block.santa_logistics.santa_dock.tooltip_0": "Status: %s",
   "block.santa_logistics.santa_door": "Santa Door",
+  "block.santa_logistics.shielded_stone": "Shielded Stone",
   "block.santa_logistics.small_cryolite_bud": "Small Cryolite Bud",
   "chat.santa_dock.available": "Santa dock is connected and active",
   "chat.santa_dock.to_be_removed": "Santa dock will be deleted at the end of the night",
@@ -29,7 +31,9 @@
   "commands.santa.try_spawn_santa_base.success": "Successfully placed Santa's base at %s (%s blocks away)",
   "container.santa_logistics.santa": "Santa's Sleigh",
   "entity.santa_logistics.robo_elf": "Robo Elf",
+  "fluid.santa_logistics.cryolite": "Cryolite",
   "item.santa_logistics.blue_present": "Blue Present",
+  "item.santa_logistics.cryolite_bucket": "Cryolite Bucket",
   "item.santa_logistics.cryolite_powder": "Cryolite Powder",
   "item.santa_logistics.cryolite_shard": "Cryolite Shard",
   "item.santa_logistics.green_pois_present": "Green Pois Present",
@@ -41,5 +45,8 @@
   "itemGroup.santa_logistics": "Create: Santa Logistics",
   "santa_logistics.gui.robo_elf.capacity": "Remaining Charge",
   "santa_logistics.gui.robo_elf.info_header": "Robo Elf Information:",
-  "santa_logistics.gui.robo_elf.title": "Activity Stress"
+  "santa_logistics.gui.robo_elf.title": "Activity Stress",
+  "santa_logistics.tooltip.overclock": "Overclock Amount:",
+  "santa_logistics.tooltip.temperature": "Temperature:",
+  "santa_logistics.tooltip.temperature_per_tick": "per tick"
 }

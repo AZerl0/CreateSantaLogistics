@@ -1,7 +1,10 @@
 package net.liukrast.santa;
 
+import com.simibubi.create.foundation.data.CreateRegistrate;
+import net.liukrast.santa.registry.SantaBlocks;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +25,8 @@ public class SantaConstants {
     public static final int EXIT_LENGTH = 100;
     public static final int EXIT_HEIGTH = 40;
 
+    protected static final CreateRegistrate REGISTRATE = CreateRegistrate.create(SantaConstants.MOD_ID);
+
     public static ResourceLocation id(String path, Object... args) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, String.format(path, args));
     }
@@ -38,5 +43,13 @@ public class SantaConstants {
         return registry.entrySet().stream()
                 .filter(t -> t.getKey().location().getNamespace().equals(MOD_ID))
                 .map(e -> Map.entry(e.getKey().location().getPath(), e.getValue()));
+    }
+
+    public static CreateRegistrate registrate() {
+        return REGISTRATE;
+    }
+
+    public static boolean fluidCapabilityExtension(Block block) {
+        return block == SantaBlocks.PRIME_CRYOLITE_BLOCK.get() || block == SantaBlocks.FROSTBURN_ENGINE.get();
     }
 }

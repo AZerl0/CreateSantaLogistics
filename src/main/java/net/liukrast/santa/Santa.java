@@ -11,6 +11,7 @@ import net.liukrast.santa.datagen.tags.SantaBlockTagsProvider;
 import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
 import net.liukrast.santa.world.SantaContainer;
+import net.liukrast.santa.world.fluid.InfiniteFluidHandler;
 import net.liukrast.santa.world.level.block.FrostburnEngineBlock;
 import net.liukrast.santa.world.level.block.SantaDocks;
 import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
@@ -24,7 +25,6 @@ import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -53,6 +53,8 @@ import java.util.concurrent.CompletableFuture;
 public class Santa {
 
     public Santa(IEventBus eventBus, ModContainer container) {
+        SantaConstants.REGISTRATE.registerEventListeners(eventBus);
+
         SantaBlockEntityTypes.init(eventBus);
         SantaMenuTypes.init(eventBus);
         SantaCreativeModeTabs.init(eventBus);
@@ -70,6 +72,7 @@ public class Santa {
         eventBus.addListener(SantaContraptionMovementSettings::init);
         eventBus.register(this);
         container.registerConfig(ModConfig.Type.COMMON, SantaConfig.SPEC);
+        SantaFluids.init();
     }
 
     public void registerCommands(RegisterCommandsEvent event) {
@@ -214,6 +217,8 @@ public class Santa {
         generator.addProvider(event.includeServer(), new SantaMillingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
     }
 
+    private static final InfiniteFluidHandler FLUID_HANDLER = new InfiniteFluidHandler();
+
     @SubscribeEvent
     public void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerBlock(
@@ -231,6 +236,12 @@ public class Santa {
                     return be.getHandler();
                 },
                 SantaBlocks.FROSTBURN_ENGINE.get()
+        );
+
+        event.registerBlock(
+                Capabilities.FluidHandler.BLOCK,
+                (level, pos, state, ___, __) -> FLUID_HANDLER,
+                SantaBlocks.PRIME_CRYOLITE_BLOCK.get()
         );
     }
 }

@@ -8,6 +8,10 @@ import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
+/**
+ * A deployer API will replace this
+ * */
+@Deprecated(forRemoval = true)
 @Mixin(PackagerItemHandler.class)
 public class PackagerItemHandlerMixin {
     @ModifyReturnValue(method = "isItemValid", at = @At("RETURN"))

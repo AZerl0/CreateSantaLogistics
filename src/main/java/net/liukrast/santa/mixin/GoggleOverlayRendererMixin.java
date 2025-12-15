@@ -205,8 +205,8 @@ public abstract class GoggleOverlayRendererMixin {
     @Definition(id = "IDisplayAssemblyExceptions", type = IDisplayAssemblyExceptions.class)
     @Expression("be instanceof IDisplayAssemblyExceptions")
     @Inject(method = "renderOverlay", at = @At("MIXINEXTRAS:EXPRESSION"))
-    private static void renderOverlay$2(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci, @Local(name = "pos") BlockPos pos, @Local(name = "world") ClientLevel world, @Local(name = "isShifting") boolean isShifting, @Local(name = "goggleAddedInformation") LocalBooleanRef goggleAddedInformation, @Local(name = "tooltip") List<Component> tooltip) {
-        if(world.getBlockState(pos).getBlock() instanceof DeployerGoggleInformation info)
+    private static void renderOverlay$2(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci, @Local(name = "pos") BlockPos pos, @Local(name = "world") ClientLevel world, @Local(name = "isShifting") boolean isShifting, @Local(name = "goggleAddedInformation") LocalBooleanRef goggleAddedInformation, @Local(name = "tooltip") List<Component> tooltip, @Local(name = "wearingGoggles") boolean wearingGoggles) {
+        if(wearingGoggles && world.getBlockState(pos).getBlock() instanceof DeployerGoggleInformation info)
             goggleAddedInformation.set(goggleAddedInformation.get() || info.addToGoogleTooltip(world, pos, world.getBlockState(pos), tooltip, isShifting));
     }
 }
