@@ -23,6 +23,7 @@ public class SantaItems {
     public static final DeferredItem<Item> CRYOLITE_BUCKET = REGISTER.register("cryolite_bucket", () -> new BucketItem(SantaFluids.CRYOLITE.get(), new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 
     public static final DeferredItem<DeferredSpawnEggItem> ROBO_ELF_SPAWN_EGG = REGISTER.register("robo_elf_spawn_egg", () -> new DeferredSpawnEggItem(SantaEntityTypes.ROBO_ELF, 0xe4b763, 0x61a53f, new Item.Properties()));
+    public static final DeferredItem<DeferredSpawnEggItem> SANTA_CLAUS_SPAWN_EGG = REGISTER.register("santa_claus_spawn_egg", () -> new DeferredSpawnEggItem(SantaEntityTypes.SANTA_CLAUS, 0xFF0000, 0xFFFFFF, new Item.Properties()));
     public static final List<DeferredItem<PresentItem>> PRESENTS = SantaPackages.PRESENTS.stream()
             .map(k -> REGISTER.register(k.type() + "_present", () -> new PresentItem(new Item.Properties().stacksTo(1), k))).toList();
 

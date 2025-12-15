@@ -1,4 +1,4 @@
-// 1.21.1	2025-12-14T22:04:38.3704504	Item Models: santa_logistics
+// 1.21.1	2025-12-15T18:51:57.3547275	Item Models: santa_logistics
 25af13465cf4f6408f3419d5800aac217401a8c6 assets/santa_logistics/models/item/blue_present.json
 7e487bab94ed7b6eb505fef145dc6a248d32f743 assets/santa_logistics/models/item/christmas_tree.json
 cc6a8e93c7bc6d9cb07f00b35bd2386fe44cf845 assets/santa_logistics/models/item/cryolite_bucket.json
@@ -13,6 +13,7 @@ bde06f012e3e6d9f288e55fb650b05a16fd11a4f assets/santa_logistics/models/item/medi
 74257709830281d4c484cad4f0bc76b5673ba40e assets/santa_logistics/models/item/red_present.json
 f851655dfc14affbec830a72c70822bd634f7fe6 assets/santa_logistics/models/item/red_tree_present.json
 63ec6c618a3a23eab4cab9c52d7d3250de9b516e assets/santa_logistics/models/item/robo_elf_spawn_egg.json
+63ec6c618a3a23eab4cab9c52d7d3250de9b516e assets/santa_logistics/models/item/santa_claus_spawn_egg.json
 55fd5cc73d901ace41d1dae458aa3c4b7ac8b105 assets/santa_logistics/models/item/santa_dock.json
 e752155e96f1bf8d23ada70289d70ccbd22787fe assets/santa_logistics/models/item/santa_door.json
 5921a3820c9ee4ed33a73f381bc7c961c3b1d69f assets/santa_logistics/models/item/small_cryolite_bud.json

@@ -47,5 +47,9 @@ public class SantaEntityLootSubProvider extends EntityLootSubProvider {
                                         )
                         )
         );
+        this.add(
+                SantaEntityTypes.SANTA_CLAUS.get(),
+                LootTable.lootTable()
+        );
     }
 }

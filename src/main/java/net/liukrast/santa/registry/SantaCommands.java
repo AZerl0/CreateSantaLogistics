@@ -2,6 +2,7 @@ package net.liukrast.santa.registry;
 
 import com.google.common.base.Stopwatch;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.world.SantaContainer;
@@ -12,6 +13,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -30,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.Objects;
 
 public class SantaCommands {
     private SantaCommands() {}
@@ -47,6 +50,24 @@ public class SantaCommands {
                                 .executes(ctx -> trySpawnSantaBase(ctx.getSource(), BlockPosArgument.getBlockPos(ctx, "pos")))
                         )
                         .executes(ctx -> trySpawnSantaBase(ctx.getSource(), null))
+                )
+                .then(Commands.literal("trust")
+                        .then(Commands.literal("get")
+                                .then(Commands.argument("target", EntityArgument.player())
+                                        .executes(ctx -> getTrust(ctx.getSource(), EntityArgument.getPlayer(ctx, "target")))
+                                )
+                                .executes(ctx -> getTrust(ctx.getSource(), Objects.requireNonNull(ctx.getSource().getPlayer())))
+                        )
+                        .then(Commands.literal("set")
+                                .then(Commands.argument("target", EntityArgument.player())
+                                        .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                                .executes(ctx -> setTrust(ctx.getSource(), EntityArgument.getPlayer(ctx, "target"), IntegerArgumentType.getInteger(ctx, "amount")))
+                                        )
+                                )
+                                .then(Commands.argument("amount", IntegerArgumentType.integer())
+                                        .executes(ctx -> setTrust(ctx.getSource(), Objects.requireNonNull(ctx.getSource().getPlayer()), IntegerArgumentType.getInteger(ctx, "amount")))
+                                )
+                        )
                 )
         );
     }
@@ -112,5 +133,17 @@ public class SantaCommands {
         int i = x2 - x1;
         int j = z2 - z1;
         return Mth.sqrt((float)(i * i + j * j));
+    }
+
+    private static int getTrust(CommandSourceStack sourceStack, ServerPlayer player) {
+        int trust = player.getData(SantaAttachmentTypes.TRUST);
+        sourceStack.sendSuccess(() -> Component.translatable("commands.santa.get_target", player.getDisplayName(), trust), true);
+        return trust;
+    }
+
+    private static int setTrust(CommandSourceStack sourceStack, ServerPlayer player, int trust) {
+        player.setData(SantaAttachmentTypes.TRUST, trust);
+        sourceStack.sendSuccess(() -> Component.translatable("commands.santa.set_target", player.getDisplayName(), trust), true);
+        return trust;
     }
 }

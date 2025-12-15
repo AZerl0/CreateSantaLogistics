@@ -25,6 +25,9 @@ public class SantaLanguageProvider extends LanguageProvider {
         add("santa_logistics.tooltip.temperature", "Temperature:");
         add("santa_logistics.tooltip.temperature_per_tick", "per tick");
 
+        add("commands.santa.get_target", "%s's trust is %s");
+        add("commands.santa.set_target", "%s's trust is set to %s");
+
         add("itemGroup.santa_logistics", "Create: Santa Logistics");
         add("commands.santa.empty", "§cNo santa dock registered");
         add("commands.santa.title", "Santa docks:");
