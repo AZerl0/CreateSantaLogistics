@@ -2,9 +2,7 @@ package net.liukrast.santa.registry;
 
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.world.item.PresentItem;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
@@ -20,10 +18,15 @@ public class SantaItems {
 
     public static final DeferredItem<Item> CRYOLITE_SHARD = REGISTER.register("cryolite_shard", () -> new Item(new Item.Properties().rarity(Rarity.RARE)));
     public static final DeferredItem<Item> CRYOLITE_POWDER = REGISTER.register("cryolite_powder", () -> new Item(new Item.Properties()));
-    public static final DeferredItem<Item> CRYOLITE_BUCKET = REGISTER.register("cryolite_bucket", () -> new BucketItem(SantaFluids.CRYOLITE.get(), new Item.Properties().craftRemainder(Items.BUCKET).stacksTo(1)));
 
     public static final DeferredItem<DeferredSpawnEggItem> ROBO_ELF_SPAWN_EGG = REGISTER.register("robo_elf_spawn_egg", () -> new DeferredSpawnEggItem(SantaEntityTypes.ROBO_ELF, 0xe4b763, 0x61a53f, new Item.Properties()));
     public static final DeferredItem<DeferredSpawnEggItem> SANTA_CLAUS_SPAWN_EGG = REGISTER.register("santa_claus_spawn_egg", () -> new DeferredSpawnEggItem(SantaEntityTypes.SANTA_CLAUS, 0xFF0000, 0xFFFFFF, new Item.Properties()));
+    public static final DeferredItem<Item> CANDY_CANE = REGISTER.register("candy_cane", () -> new Item(new Item.Properties()));
+
+    public static final DeferredItem<Item> FROSTBURN_CORE = REGISTER.register("frostburn_core", () -> new Item(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1)));
+
+    public static final DeferredItem<Item> SANTA_KEY = REGISTER.register("santa_key", () -> new Item(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1)));
+
     public static final List<DeferredItem<PresentItem>> PRESENTS = SantaPackages.PRESENTS.stream()
             .map(k -> REGISTER.register(k.type() + "_present", () -> new PresentItem(new Item.Properties().stacksTo(1), k))).toList();
 

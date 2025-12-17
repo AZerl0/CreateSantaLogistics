@@ -5,6 +5,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class SantaCreativeModeTabs {
@@ -22,9 +23,11 @@ public class SantaCreativeModeTabs {
                     for(var entry : SantaItems.REGISTER.getEntries()) {
                         out.accept(entry.get());
                     }
+                    SantaConstants.getElements(BuiltInRegistries.FLUID).forEach(f -> out.accept(f.getBucket()));
                 })
                 .build());
     }
+
 
     public static void init(IEventBus eventBus) {
         REGISTER.register(eventBus);

@@ -4,14 +4,12 @@ import com.simibubi.create.content.logistics.box.PackageItem;
 import net.liukrast.santa.datagen.*;
 import net.liukrast.santa.datagen.loot.SantaBlockLootSubProvider;
 import net.liukrast.santa.datagen.loot.SantaEntityLootSubProvider;
-import net.liukrast.santa.datagen.recipe.SantaCrushingRecipeGen;
-import net.liukrast.santa.datagen.recipe.SantaMillingRecipeGen;
-import net.liukrast.santa.datagen.recipe.SantaRecipeProvider;
+import net.liukrast.santa.datagen.recipe.*;
 import net.liukrast.santa.datagen.tags.SantaBlockTagsProvider;
+import net.liukrast.santa.datagen.tags.SantaItemTagsProvider;
 import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
 import net.liukrast.santa.world.SantaContainer;
-import net.liukrast.santa.world.fluid.InfiniteFluidHandler;
 import net.liukrast.santa.world.level.block.FrostburnEngineBlock;
 import net.liukrast.santa.world.level.block.SantaDocks;
 import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
@@ -207,6 +205,7 @@ public class Santa {
         generator.addProvider(event.includeClient(), new SantaItemModelProvider(packOutput, helper));
         var blockTagProvider = new SantaBlockTagsProvider(packOutput, lookupProvider, helper);
         generator.addProvider(event.includeServer(), blockTagProvider);
+        generator.addProvider(event.includeServer(), new SantaItemTagsProvider(packOutput, lookupProvider, blockTagProvider.contentsGetter(), helper));
         var dataPackProvider = new SantaDatapackBuiltinEntriesProvider(packOutput, lookupProvider);
         generator.addProvider(event.includeServer(), new LootTableProvider(packOutput, Collections.emptySet(),
                 List.of(
@@ -215,10 +214,11 @@ public class Santa {
                 ), lookupProvider));
         generator.addProvider(event.includeServer(), new SantaRecipeProvider(packOutput, dataPackProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new SantaCrushingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
+        generator.addProvider(event.includeServer(), new SantaMixingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
         generator.addProvider(event.includeServer(), new SantaMillingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
+        generator.addProvider(event.includeServer(), new SantaCompactingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
+        generator.addProvider(event.includeServer(), new SantaMechanicalCraftingRecipeGen(packOutput, dataPackProvider.getRegistryProvider()));
     }
-
-    private static final InfiniteFluidHandler FLUID_HANDLER = new InfiniteFluidHandler();
 
     @SubscribeEvent
     public void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -237,12 +237,6 @@ public class Santa {
                     return be.getHandler();
                 },
                 SantaBlocks.FROSTBURN_ENGINE.get()
-        );
-
-        event.registerBlock(
-                Capabilities.FluidHandler.BLOCK,
-                (level, pos, state, ___, __) -> FLUID_HANDLER,
-                SantaBlocks.PRIME_CRYOLITE_BLOCK.get()
         );
     }
 }

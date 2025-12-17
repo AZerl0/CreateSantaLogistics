@@ -1,1 +1,8 @@
-// 1.21.1	2025-12-14T22:04:38.3657715	Registrate Provider for santa_logistics [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2025-12-16T23:07:54.9430777	Registrate Provider for santa_logistics [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+e66887ac6b9a44c59aa333295cc7696a5dee89d9 assets/santa_logistics/blockstates/cryolite.json
+07b4a4f0249c646c7db674bc6507e2673f0f5963 assets/santa_logistics/blockstates/molten_sugar.json
+bed9ebbf6ad2824af84d97c3e8224aef61bf1a8a assets/santa_logistics/models/block/cryolite.json
+2fcf810007e80a1e7ca32671803bc4310793d72b assets/santa_logistics/models/block/molten_sugar.json
+cc6a8e93c7bc6d9cb07f00b35bd2386fe44cf845 assets/santa_logistics/models/item/cryolite_bucket.json
+a229e7d2588dfc7a5c32d2acfee5dd46100d3cc8 assets/santa_logistics/models/item/molten_sugar_bucket.json
+b24fa4a4a21e4907ac52481bc2d5201e1a79e0c6 data/c/tags/item/buckets.json

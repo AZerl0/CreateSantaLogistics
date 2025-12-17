@@ -1,6 +1,7 @@
 package net.liukrast.santa.datagen;
 
 import net.liukrast.santa.SantaConstants;
+import net.liukrast.santa.SantaLang;
 import net.liukrast.santa.registry.SantaBlocks;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -19,7 +20,10 @@ public class SantaLanguageProvider extends LanguageProvider {
         SantaConstants.getElementEntries(BuiltInRegistries.ENTITY_TYPE)
                 .forEach(e -> add(e.getValue(), autoName(e.getKey())));
 
+        add(SantaLang.getTooltip(SantaBlocks.PRIME_CRYOLITE_BLOCK), "Creative-only infinite cryolite generator");
+
         add("fluid.santa_logistics.cryolite", "Cryolite");
+        add("fluid.santa_logistics.molten_sugar", "Molten Sugar");
         add(SantaBlocks.CRYOLITE_BLOCK.get(), "Block of Cryolite");
         add("santa_logistics.tooltip.overclock", "Overclock Amount:");
         add("santa_logistics.tooltip.temperature", "Temperature:");

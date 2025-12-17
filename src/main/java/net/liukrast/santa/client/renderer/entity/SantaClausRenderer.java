@@ -12,7 +12,7 @@ public class SantaClausRenderer extends MobRenderer<SantaClaus, SantaClausModel>
     private static final ResourceLocation TEXTURE = SantaConstants.id("textures/entity/santa_claus.png");
 
     public SantaClausRenderer(EntityRendererProvider.Context context) {
-        super(context, new SantaClausModel(context.bakeLayer(SantaClausModel.LAYER_LOCATION)), 2);
+        super(context, new SantaClausModel(context.bakeLayer(SantaClausModel.LAYER_LOCATION)), 1);
         addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
     }
 

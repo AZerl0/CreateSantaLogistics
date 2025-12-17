@@ -30,7 +30,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -55,6 +54,11 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation 
     private static final EntityDataAccessor<Float> CHARGE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> STRESS_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
     private int unstressCooldown = 0;
+
+    private static final List<TradeInfo> TRADES = List.of(
+            new TradeInfo(new ItemStack(Items.SNOWBALL, 4), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, Items.SNOW_BLOCK.getDefaultInstance(), 10, 10),
+            new TradeInfo(new ItemStack(Items.SPRUCE_LOG, 4), new ItemStack(Items.SPRUCE_LEAVES), Items.GOLD_INGOT.getDefaultInstance(), ItemStack.EMPTY, SantaBlocks.CHRISTMAS_TREE.toStack(), 100, 40)
+    );
 
     @Nullable
     private ElfChargeStationBlockEntity chargeStation = null;

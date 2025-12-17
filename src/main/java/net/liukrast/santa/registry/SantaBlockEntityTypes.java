@@ -27,7 +27,7 @@ public class SantaBlockEntityTypes {
     private static final DeferredRegister<BlockEntityType<?>> REGISTER = SantaConstants.createDeferred(BuiltInRegistries.BLOCK_ENTITY_TYPE);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SantaDockBlockEntity>> SANTA_DOCK = REGISTER.register("santa_dock", () -> BlockEntityType.Builder.of(SantaDockBlockEntity::new, SantaBlocks.SANTA_DOCK.get()).build(null));
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SantaDoorBlockEntity>> SANTA_DOOR = REGISTER.register("santa_door", () -> BlockEntityType.Builder.of(SantaDoorBlockEntity::new, SantaBlocks.SANTA_DOOR.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SantaDoorBlockEntity>> SANTA_DOOR = REGISTER.register("santa_door", () -> BlockEntityType.Builder.of(SantaDoorBlockEntity::new, SantaBlocks.SANTA_DOOR.get(), SantaBlocks.SANTA_VAULT_DOOR.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ElfChargeStationBlockEntity>> ELF_CHARGE_STATION = REGISTER.register("elf_charge_station", () -> BlockEntityType.Builder.of(ElfChargeStationBlockEntity::new, SantaBlocks.ELF_CHARGE_STATION.get()).build(null));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FrostburnEngineBlockEntity>> FROSTBURN_ENGINE = REGISTER.register("frostburn_engine", () -> BlockEntityType.Builder.of(FrostburnEngineBlockEntity::new, SantaBlocks.FROSTBURN_ENGINE.get()).build(null));
 

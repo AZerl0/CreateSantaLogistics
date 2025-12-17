@@ -1,6 +1,7 @@
 package net.liukrast.santa.registry;
 
 import net.liukrast.santa.SantaConstants;
+import net.liukrast.santa.world.inventory.RoboElfMenu;
 import net.liukrast.santa.world.inventory.SantaDockMenu;
 import net.liukrast.santa.world.inventory.SantaMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +18,7 @@ public class SantaMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<SantaDockMenu>> SANTA_DOCK = REGISTER.register("santa_dock", () -> IMenuTypeExtension.create(SantaDockMenu::new));
     public static final DeferredHolder<MenuType<?>, MenuType<SantaMenu>> SANTA_MENU = REGISTER.register("santa_menu", () -> IMenuTypeExtension.create(SantaMenu::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<RoboElfMenu>> ROBO_ELF_MENU = REGISTER.register("robo_elf_menu", () -> IMenuTypeExtension.create(RoboElfMenu::new));
 
     public static void init(IEventBus eventBus) {
         REGISTER.register(eventBus);

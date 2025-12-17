@@ -23,6 +23,7 @@ public class SantaBlockStateProvider extends BlockStateProvider {
         MultiPartAPIStateHelper.multiPartBlock(this, SantaBlocks.CHRISTMAS_TREE.get());
         simpleCubeAll(SantaBlocks.CRYOLITE_BLOCK.get());
         simpleCubeAll(SantaBlocks.BUDDING_CRYOLITE.get());
+        simpleBlockWithItem(SantaBlocks.PRIME_CRYOLITE_BLOCK.get(), existing("block/prime_cryolite_block"));
         getVariantBuilder(SantaBlocks.FROSTBURN_ENGINE.get())
                 .forAllStates(state -> {
                     var block = ((AbstractMultipartBlock)state.getBlock());
@@ -54,6 +55,7 @@ public class SantaBlockStateProvider extends BlockStateProvider {
                             .modelFile(existing("block/frostburn_engine/tube"))
                             .build();
                 });
+        simpleCubeAll(SantaBlocks.SHIELDED_STONE.get());
     }
 
     private void simpleCubeAll(Block block) {

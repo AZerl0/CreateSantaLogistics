@@ -4,8 +4,10 @@ import net.liukrast.multipart.block.AbstractFacingMultipartBlock;
 import net.liukrast.santa.world.level.block.entity.SantaDoorBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
@@ -40,9 +42,13 @@ public class SantaDoorBlock extends AbstractFacingMultipartBlock implements Enti
         registerDefaultState(defaultBlockState().setValue(LOCKED, false).setValue(POWERED, false).setValue(OPEN, false));
     }
 
+    public int getWidth() {
+        return 4;
+    }
+
     @Override
     public void defineParts(Builder builder) {
-        for(int x = 0; x < 4; x++) {
+        for(int x = 0; x < getWidth(); x++) {
             for(int y = 0; y < 4; y++) {
                 builder.define(x, y, 0);
             }
@@ -60,14 +66,24 @@ public class SantaDoorBlock extends AbstractFacingMultipartBlock implements Enti
         builder.add(OPEN, LOCKED, POWERED);
     }
 
+    public boolean canUnlock(ItemStack stack) {
+        return false;
+    }
+
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if(state.getValue(LOCKED) && !player.getAbilities().instabuild) return InteractionResult.PASS;
-        state = state.cycle(OPEN);
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+        if(state.getValue(LOCKED) && canUnlock(stack)) {
+            state = state.cycle(LOCKED).setValue(OPEN, true);
+            stack.consume(1, player);
+            //TODO: Playsound!!
+        } else {
+            if(state.getValue(LOCKED) && !player.getAbilities().instabuild) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            state = state.cycle(OPEN);
+            level.gameEvent(player, state.getValue(OPEN) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
+        }
         level.setBlock(pos, state, 10);
         // Playsound?
-        level.gameEvent(player, state.getValue(OPEN) ? GameEvent.BLOCK_OPEN : GameEvent.BLOCK_CLOSE, pos);
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return ItemInteractionResult.SUCCESS;
     }
 
     @Override

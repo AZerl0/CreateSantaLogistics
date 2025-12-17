@@ -1,12 +1,12 @@
 package net.liukrast.santa;
 
-import com.simibubi.create.Create;
 import net.createmod.catnip.lang.Lang;
 import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.lang.LangNumberFormat;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -14,6 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SantaLang extends Lang {
+    public static String getTooltip(ItemLike itemLike) {
+        return  itemLike.asItem().getDescriptionId() + ".tooltip.summary";
+    }
+
     public static MutableComponent translateDirect(String key, Object... args) {
         Object[] args1 = LangBuilder.resolveBuilders(args);
         return Component.translatable(SantaConstants.MOD_ID + "." + key, args1);

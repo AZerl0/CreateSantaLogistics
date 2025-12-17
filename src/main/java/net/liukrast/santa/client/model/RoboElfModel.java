@@ -87,7 +87,6 @@ public class RoboElfModel extends EntityModel<RoboElf> implements ArmedModel {
         float animTime = limbSwing*1.75f;
         boolean holding = !entity.getMainHandItem().isEmpty();
         boolean off = entity.getCharge() == 0;
-        body.resetPose();
         body.xRot = off ? 0.5f : 0;
         body.z = off ? 5f : 0;
 

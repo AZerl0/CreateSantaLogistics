@@ -3,7 +3,9 @@ package net.liukrast.santa;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import net.liukrast.santa.registry.SantaBlocks;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
@@ -25,7 +27,8 @@ public class SantaConstants {
     public static final int EXIT_LENGTH = 100;
     public static final int EXIT_HEIGTH = 40;
 
-    protected static final CreateRegistrate REGISTRATE = CreateRegistrate.create(SantaConstants.MOD_ID);
+    protected static final CreateRegistrate REGISTRATE = SantaRegistrate.create(SantaConstants.MOD_ID)
+            .defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
 
     public static ResourceLocation id(String path, Object... args) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, String.format(path, args));

@@ -40,7 +40,8 @@ public class SantaItemModelProvider extends ItemModelProvider {
         panelBlockItem(SantaBlocks.SMALL_CRYOLITE_BUD.get());
         basicItem(SantaItems.CRYOLITE_SHARD.get());
         basicItem(SantaItems.CRYOLITE_POWDER.get());
-        basicItem(SantaItems.CRYOLITE_BUCKET.get());
+        basicItem(SantaItems.CANDY_CANE.get());
+        basicItem(SantaItems.SANTA_KEY.get());
     }
 
     private void panelBlockItem(Block block) {

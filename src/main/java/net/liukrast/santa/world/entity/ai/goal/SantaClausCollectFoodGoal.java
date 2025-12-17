@@ -16,18 +16,18 @@ import java.util.List;
 public class SantaClausCollectFoodGoal extends Goal {
     private final SantaClaus santa;
     private int cooldown;
-    private static final int MAX_COOLDOWN = 100;
+    public static final int MAX_COOLDOWN = 100;
     private ItemEntity item = null;
 
     public SantaClausCollectFoodGoal(SantaClaus santa) {
         this.santa = santa;
-    setFlags(EnumSet.of(Goal.Flag.MOVE, Flag.LOOK));
+        setFlags(EnumSet.of(Goal.Flag.MOVE, Flag.LOOK));
     }
 
     @Override
     public boolean canUse() {
         if(!santa.getMainHandItem().isEmpty()) return false;
-        if(item != null) return false;
+        if(item != null && !item.isRemoved()) return false;
         List<ItemEntity> list = santa.level().getEntitiesOfClass(ItemEntity.class, getRange(santa.getBoundingBox()), this::isValidItem);
         return !list.isEmpty();
     }
@@ -42,12 +42,15 @@ public class SantaClausCollectFoodGoal extends Goal {
     }
 
     public boolean isValidItem(ItemEntity itemEntity) {
-        ItemStack stack = itemEntity.getItem();
+        return santa.canEat(itemEntity.getItem());
+    }
+
+    public boolean matchesMinimumTrust(ItemEntity itemEntity) {
         var owner = itemEntity.getOwner();
         if(owner == null) return false;
-        if(owner.isAlive()) return false;
-        if(owner.getData(SantaAttachmentTypes.TRUST) < 1000) return false;
-        return stack.is(Items.MILK_BUCKET) || stack.is(Items.COOKIE) || stack.is(AllFluids.CHOCOLATE.getBucket().orElseThrow());
+        if(!owner.isAlive()) return false;
+        int trust = owner.getData(SantaAttachmentTypes.TRUST);
+        return trust >= 1000;
     }
 
     public AABB getRange(AABB mobBoundingBox) {
@@ -63,6 +66,7 @@ public class SantaClausCollectFoodGoal extends Goal {
     public void start() {
         List<ItemEntity> list = santa.level().getEntitiesOfClass(ItemEntity.class, getRange(santa.getBoundingBox()), this::isValidItem);
         if(list.isEmpty()) return;
+        santa.setAnimationState(1);
         item = list.getFirst();
         santa.getLookControl().setLookAt(item);
     }
@@ -70,10 +74,16 @@ public class SantaClausCollectFoodGoal extends Goal {
     @Override
     public void tick() {
         cooldown++;
+        if(item != null && !item.isRemoved() && santa.getAnimationState() != 2) santa.getLookControl().setLookAt(item);
         if(cooldown == MAX_COOLDOWN) {
             if(item == null || item.isRemoved()) return;
             List<ItemEntity> list = santa.level().getEntitiesOfClass(ItemEntity.class, getRange(santa.getBoundingBox()), this::isValidItem);
             if(!list.contains(item)) return;
+            if(!matchesMinimumTrust(item)) {
+                santa.setAnimationState(2);
+                return;
+            }
+            santa.setAnimationState(0);
             santa.setItemInHand(InteractionHand.MAIN_HAND, item.getItem());
             item.discard();
         }

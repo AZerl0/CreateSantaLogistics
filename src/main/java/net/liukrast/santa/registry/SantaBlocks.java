@@ -1,6 +1,10 @@
 package net.liukrast.santa.registry;
 
 import com.simibubi.create.api.stress.BlockStressValues;
+import com.simibubi.create.foundation.item.ItemDescription;
+import com.simibubi.create.foundation.item.KineticStats;
+import com.simibubi.create.foundation.item.TooltipModifier;
+import net.createmod.catnip.lang.FontHelper;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.world.level.block.*;
 import net.minecraft.world.item.BlockItem;
@@ -24,6 +28,7 @@ public class SantaBlocks {
     public static final DeferredBlock<ChristmasTreeBlock> CHRISTMAS_TREE = register("christmas_tree", () -> new ChristmasTreeBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_PLANKS)));
     public static final DeferredBlock<SantaDockBlock> SANTA_DOCK = register("santa_dock", () -> new SantaDockBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
     public static final DeferredBlock<SantaDoorBlock> SANTA_DOOR = register("santa_door", () -> new SantaDoorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
+    public static final DeferredBlock<SantaDoorBlock> SANTA_VAULT_DOOR = register("santa_vault_door", () -> new SantaVaultDoorBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)));
     public static final DeferredBlock<ElfChargeStationBlock> ELF_CHARGE_STATION = register("elf_charge_station", () -> new ElfChargeStationBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)), SantaStressImpacts.withStressImpact(2));
     public static final DeferredBlock<AmethystBlock> CRYOLITE_BLOCK = register("cryolite_block", () -> new AmethystBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.AMETHYST_BLOCK)));
     public static final DeferredBlock<BuddingAmethystBlock> BUDDING_CRYOLITE = register("budding_cryolite", () -> new BuddingCryoliteBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.BUDDING_AMETHYST)));
@@ -33,26 +38,42 @@ public class SantaBlocks {
     public static final DeferredBlock<AmethystClusterBlock> SMALL_CRYOLITE_BUD = register("small_cryolite_bud", () -> new AmethystClusterBlock(3,4,BlockBehaviour.Properties.ofFullCopy(Blocks.SMALL_AMETHYST_BUD)));
     public static final DeferredBlock<Block> FROSTBURN_ENGINE = register("frostburn_engine", () -> new FrostburnEngineBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()), SantaStressImpacts.withStressCapacity(32), BlockStressValues.setGeneratorSpeed(32));
     public static final DeferredBlock<Block> SHIELDED_STONE = register("shielded_stone", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)));
-    public static final DeferredBlock<Block> PRIME_CRYOLITE_BLOCK = register("prime_cryolite_block", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)));
+    public static final DeferredBlock<Block> PRIME_CRYOLITE_BLOCK = register("prime_cryolite_block", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)), SantaBlocks::wrapWithShiftSummary, true);
+
 
     @SafeVarargs
     private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, Consumer<T>... applications) {
-        return register(name, supplier, true, applications);
+        return register(name, supplier, item -> {}, true, applications);
     }
 
     @SafeVarargs
-    private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, @SuppressWarnings("SameParameterValue") boolean withItem, Consumer<T>... applications) {
+    private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, Consumer<Item> itemConsumer, @SuppressWarnings("SameParameterValue") boolean withItem, Consumer<T>... applications) {
         var defBlock = REGISTER.register(name, () -> {
             var block = supplier.get();
             for (Consumer<T> application : applications) application.accept(block);
             return block;
         });
-        if(withItem) ITEMS.register(name, () -> new BlockItem(defBlock.get(), new Item.Properties()));
+        if(withItem) ITEMS.register(name, () -> {
+            var item = new BlockItem(defBlock.get(), new Item.Properties());
+            itemConsumer.accept(item);
+            return item;
+        });
         return defBlock;
     }
 
     public static void init(IEventBus eventBus) {
         REGISTER.register(eventBus);
         ITEMS.register(eventBus);
+    }
+
+    /**
+     * Will be replaced with Deployer API
+     * */
+    @Deprecated(forRemoval = true)
+    private static Item wrapWithShiftSummary(Item item) {
+        var modifier = new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
+                .andThen(TooltipModifier.mapNull(KineticStats.create(item)));
+        TooltipModifier.REGISTRY.register(item, modifier);
+        return item;
     }
 }

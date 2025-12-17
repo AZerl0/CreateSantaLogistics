@@ -27,6 +27,7 @@ import java.util.List;
 public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
     private int temperature = 0;
     public ScrollValueBehaviour overclock;
+    private boolean creative = false;
 
     private static final int MAX_TEMPERATURE = 10000;
 
@@ -78,7 +79,8 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         overclock = new ScrollValueBehaviour(Component.empty(), this, new CenteredSideValueBoxTransform((b,s) -> false));
-        overclock.between(1, 1024);
+        overclock.between(0, 1024);
+        overclock.withCallback(i -> updateGeneratedRotation());
         behaviours.add(overclock);
     }
 
@@ -110,6 +112,7 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
         super.write(compound, registries, clientPacket);
         compound.putInt("Temperature", temperature);
         compound.putInt("Overclock", overclock.value);
+        compound.putBoolean("Creative", creative);
     }
 
     @Override
@@ -118,12 +121,13 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
         if(clientPacket) temperature = (temperature+ compound.getInt("Temperature"))/2;
         else temperature = compound.getInt("Temperature");
         overclock.setValue(compound.getInt("Overclock"));
+        creative = compound.getBoolean("Creative");
     }
 
     @Override
     public void tick() {
         super.tick();
-        temperature = Mth.clamp(temperature + overclock.value, 0, MAX_TEMPERATURE);
+        if(!creative) temperature = Mth.clamp(temperature + overclock.value, 0, MAX_TEMPERATURE);
         sendData();
     }
 
