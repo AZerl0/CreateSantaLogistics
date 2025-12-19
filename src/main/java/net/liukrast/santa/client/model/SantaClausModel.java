@@ -2,7 +2,6 @@ package net.liukrast.santa.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.world.entity.SantaClaus;
 import net.minecraft.client.model.ArmedModel;
@@ -112,23 +111,28 @@ public class SantaClausModel extends EntityModel<SantaClaus> implements ArmedMod
     @Override
     public void translateToHand(HumanoidArm side, PoseStack poseStack) {
         this.right_arm.translateAndRotate(poseStack);
+        poseStack.translate(0, 0.3, 0);
     }
 
     @Override
     public void setupAnim(SantaClaus entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-
+        /* RESET */
         beard.resetPose();
-        hat.xRot = -0.1f;
+        right_arm.resetPose();
+        left_arm.resetPose();
+        /* ALL POSES */
+        hat.xRot = -0.1f + Mth.cos(limbSwing)*limbSwingAmount*0.05f + Mth.sin(ageInTicks*.1f)*.01f;
         hat.yRot = -0.1f;
         hat.zRot = 0.1f;
 
-        hat_1.yRot = -0.2f;
+        hat_1.yRot = -0.2f + Mth.sin(ageInTicks*.1f)*.05f;
 
-        hat_2.yRot = -0.2f;
-        hat_2.zRot = 0.2f;
+        hat_2.yRot = -0.2f + Mth.sin(ageInTicks*.1f)*.05f;
+        hat_2.zRot = 0.2f + Mth.sin(limbSwing)*limbSwingAmount*0.1f;
 
         hat_3.yRot = -0.5f;
-        hat_3.zRot = -0.3f;
+        hat_3.zRot = -0.3f + Mth.cos(limbSwing)*limbSwingAmount*0.1f;
+        hat_3.xRot = Mth.cos(ageInTicks*.1f)*.1f;
 
         beard.xRot = -0.2f;
 
@@ -145,12 +149,12 @@ public class SantaClausModel extends EntityModel<SantaClaus> implements ArmedMod
 
         head.xRot = headPitch * (float) (Math.PI / 180.0);
 
-        right_arm.resetPose();
-        left_arm.resetPose();
         right_arm.zRot = -0.1f;
         left_arm.zRot = 0.1f;
         right_arm.yRot = 0.5f;
         left_arm.yRot = -0.5f;
+        right_arm.xRot = -Mth.abs(Mth.cos(limbSwing)*limbSwingAmount*0.3f)-1 + Mth.sin(ageInTicks*.1f)*.01f;
+        left_arm.xRot = right_arm.xRot;
 
         right_leg.xRot = -Mth.clamp(-Mth.cos(limbSwing),0,1)*limbSwingAmount;
         right_leg.z = Mth.cos(limbSwing)*limbSwingAmount*8f+0.5f;
@@ -159,13 +163,11 @@ public class SantaClausModel extends EntityModel<SantaClaus> implements ArmedMod
         left_leg.z = -Mth.cos(limbSwing)*limbSwingAmount*8f+0.5f;
         left_leg.y = 24+Mth.sin(limbSwing)*limbSwingAmount*4f;
 
-        body.y = 24-Mth.abs(Mth.sin(limbSwing))*limbSwingAmount*2;
-        right_arm.y = -5-Mth.abs(Mth.cos(limbSwing))*limbSwingAmount;
-        left_arm.y = -5-Mth.abs(Mth.cos(limbSwing))*limbSwingAmount;
+        body.y = 24-Mth.abs(Mth.sin(limbSwing))*limbSwingAmount*2 + Mth.sin(ageInTicks*.1f)*0.1f;
+        right_arm.y = -5-Mth.abs(Mth.cos(limbSwing))*limbSwingAmount -Mth.abs(Mth.sin(limbSwing))*limbSwingAmount;
+        left_arm.y = right_arm.y;
         body.xRot = 0;
 
-        right_arm.xRot = -Mth.abs(Mth.cos(limbSwing)*limbSwingAmount*0.3f)-1;
-        left_arm.xRot = -Mth.abs(Mth.cos(limbSwing)*limbSwingAmount*0.3f)-1;
 
 
         float animationTime = ageInTicks-entity.animationTime;
@@ -173,31 +175,45 @@ public class SantaClausModel extends EntityModel<SantaClaus> implements ArmedMod
             entity.lastFoundState = entity.getAnimationState();
             entity.animationTime = ageInTicks;
         }
-        if(entity.lastFoundState == 1) {
-            right_arm.xRot = -4;
-            right_arm.yRot = -1.3f - head.xRot;
+        switch (entity.lastFoundState) {
+            case IDLE -> {
+            }
+            case CURIOUS -> {
+                right_arm.xRot = -4;
+                right_arm.yRot = -1.3f - head.xRot;
 
-            right_arm.x = Mth.cos(ageInTicks/2) + 10;
-            right_arm.y = Mth.cos(ageInTicks/2) - 10;
-        } else if(entity.lastFoundState == 2) {
-            right_mustache.xRot = -0.1f;
-            right_mustache.yRot = -0.2f;
-            right_mustache.zRot = 0.3f + Mth.cos(ageInTicks*3)*0.1f;
+                right_arm.x = Mth.cos(ageInTicks/2) + 10;
+                right_arm.y = Mth.cos(ageInTicks/2) - 10;
+            }
+            case ANGRY -> {
+                right_mustache.xRot = -0.1f;
+                right_mustache.yRot = -0.2f;
+                right_mustache.zRot = 0.3f + Mth.cos(ageInTicks*3)*0.1f;
 
 
-            left_mustache.xRot = -0.1f;
-            left_mustache.yRot = 0.2f;
-            left_mustache.zRot = -0.3f + Mth.cos(ageInTicks*3)*0.1f;
+                left_mustache.xRot = -0.1f;
+                left_mustache.yRot = 0.2f;
+                left_mustache.zRot = -0.3f + Mth.cos(ageInTicks*3)*0.1f;
 
-            body.xRot = animationTime > 20 ? 0 : -(1-Mth.cos(animationTime*Mth.PI*0.1f))*0.1f;
-            chest.xRot = animationTime > 20 ? 0 : -(1-Mth.cos(animationTime*Mth.PI*0.1f))*0.1f;
-            right_arm.xRot = animationTime > 20 ? .5f : -Mth.sin(animationTime*Mth.PI*0.1f)*1.5f + animationTime*.05f*.5f;
-            right_arm.zRot = animationTime > 20 ? -.1f : -(1-Mth.cos(animationTime*Mth.PI*0.1f))*0.7f + animationTime*.05f*-.1f;
+                float backTo = (1-Mth.cos(animationTime*.05f*Mth.PI))/2;
 
-            left_arm.xRot = animationTime > 20 ? -.5f : -Mth.sin(animationTime*Mth.PI*0.1f)*1.5f + animationTime*.05f*-.5f;
-            left_arm.zRot = animationTime > 20 ? .1f : (1-Mth.cos(animationTime*Mth.PI*0.1f))*0.7f + animationTime*.05f*.1f;
+                body.xRot = animationTime > 20 ? 0 : -(1-Mth.cos(animationTime*Mth.PI*0.1f))*0.1f;
+                chest.xRot = animationTime > 20 ? 0 : -(1-Mth.cos(animationTime*Mth.PI*0.1f))*0.1f;
+                right_arm.xRot = animationTime > 20 ? right_arm.xRot : -Mth.sin(animationTime*Mth.PI*0.1f)*1.5f + backTo*right_arm.xRot;
+                right_arm.zRot = animationTime > 20 ? right_arm.zRot : -(1-Mth.cos(animationTime*Mth.PI*0.1f))*0.7f + backTo*right_arm.zRot;
 
-            beard.y = -3;
+                left_arm.xRot = animationTime > 20 ? left_arm.xRot : -Mth.sin(animationTime*Mth.PI*0.1f)*1.5f + backTo*left_arm.xRot;
+                left_arm.zRot = animationTime > 20 ? left_arm.zRot : (1-Mth.cos(animationTime*Mth.PI*0.1f))*0.7f + backTo*left_arm.zRot;
+
+                beard.y = -3;
+            }
+            case EATING -> {
+                right_arm.xRot = right_arm.xRot - 1 + Mth.cos(ageInTicks)*0.3f;
+                beard.y += Mth.sin(ageInTicks);
+            }
+            case SLEEPING -> {
+
+            }
         }
     }
 

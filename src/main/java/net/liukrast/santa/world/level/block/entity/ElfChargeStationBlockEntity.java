@@ -3,6 +3,7 @@ package net.liukrast.santa.world.level.block.entity;
 import com.simibubi.create.content.kinetics.base.KineticBlockEntity;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.world.entity.RoboElf;
+import net.liukrast.santa.world.level.block.ElfChargeStationBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -16,5 +17,15 @@ public class ElfChargeStationBlockEntity extends KineticBlockEntity {
 
     public void update(RoboElf roboElf) {
         roboElf.insertCharge(Mth.abs(speed)/16);
+    }
+
+    public void stopCharging() {
+        if(level == null) return;
+        level.setBlock(getBlockPos(), getBlockState().setValue(ElfChargeStationBlock.OCCUPIED, false), 3);
+    }
+
+    public void startCharging() {
+        if(level == null) return;
+        level.setBlock(getBlockPos(), getBlockState().setValue(ElfChargeStationBlock.OCCUPIED, true), 3);
     }
 }

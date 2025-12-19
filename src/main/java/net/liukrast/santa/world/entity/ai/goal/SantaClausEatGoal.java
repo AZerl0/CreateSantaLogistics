@@ -26,22 +26,27 @@ public class SantaClausEatGoal extends Goal {
 
     @Override
     public void start() {
-        santa.setAnimationState(3);
-        cooldown = 200;
+        santa.setAnimationState(SantaClaus.State.EATING);
+        cooldown = 20;
+    }
+
+    @Override
+    public void stop() {
+        santa.setAnimationState(SantaClaus.State.IDLE);
     }
 
     @Override
     public void tick() {
         if(cooldown > 0) {
             cooldown--;
-            Vec3 m = VecHelper.offsetRandomly(new Vec3(0, 0.25f, 0), santa.level().random, .125f);
-            ((ServerLevel)santa.level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, santa.getMainHandItem()), santa.getX(), santa.getY(), santa.getZ(), 10, m.x, m.y, m.z, 0.1);
+            Vec3 m = VecHelper.offsetRandomly(new Vec3(0, 0.25f, 0), santa.getRandom(), .125f);
+            ((ServerLevel)santa.level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, santa.getMainHandItem()), santa.getX(), santa.getY() + 2, santa.getZ(), 10, m.x, m.y, m.z, 0.1);
         } else {
             var stack = santa.getMainHandItem();
             boolean a = santa.isTypeAFood(stack);
             if(!a && !santa.isTypeBFood(stack)) return;
             santa.incrementSatisfaction(stack, a);
-            santa.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            santa.getMainHandItem().consume(1, santa);
         }
     }
 }

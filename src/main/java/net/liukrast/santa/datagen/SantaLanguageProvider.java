@@ -27,6 +27,11 @@ public class SantaLanguageProvider extends LanguageProvider {
         add("container.santa_logistics.robo_elf.process_time", "How many seconds it will take to craft this item");
         add("container.santa_logistics.robo_elf.trust_level", "Your current trust level");
 
+        add("santa_logistics.gui.santa_claus.info_header", "Santa Claus Information:");
+        add("santa_logistics.gui.santa_claus.satisfaction", "Satisfaction level");
+        add("santa_logistics.gui.santa_claus.satisfaction_a", "Reward A:");
+        add("santa_logistics.gui.santa_claus.satisfaction_b", "Reward B:");
+
         add("fluid.santa_logistics.cryolite", "Cryolite");
         add("fluid.santa_logistics.molten_sugar", "Molten Sugar");
         add(SantaBlocks.CRYOLITE_BLOCK.get(), "Block of Cryolite");

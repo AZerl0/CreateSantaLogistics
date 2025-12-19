@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.trading.ItemCost;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
@@ -86,9 +87,9 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
             var ing = info.getIngredients();
 
             for(int k = 0; k < ing.length; k++) {
-                ItemStack c = ing[k];
-                if(c.isEmpty()) continue;
-                renderItem(guiGraphics, c,guiLeft + 25 + k*20, guiTop + 45 + 24*i, mouseX, mouseY);
+                ItemCost c = ing[k];
+                if(c == null || c.itemStack().isEmpty()) continue;
+                renderItem(guiGraphics, c.itemStack(),guiLeft + 25 + k*20, guiTop + 45 + 24*i, mouseX, mouseY);
             }
 
             renderTextWithTooltip(

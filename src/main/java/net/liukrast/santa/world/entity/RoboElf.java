@@ -7,6 +7,7 @@ import com.simibubi.create.content.logistics.box.PackageEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.foundation.utility.CreateLang;
 import net.createmod.catnip.lang.LangBuilder;
+import net.createmod.catnip.math.VecHelper;
 import net.liukrast.santa.DeployerGoggleInformation;
 import net.liukrast.santa.SantaConfig;
 import net.liukrast.santa.SantaLang;
@@ -25,6 +26,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -35,7 +37,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
@@ -48,6 +49,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
@@ -63,21 +65,20 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     private static final EntityDataAccessor<Float> CHARGE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> STRESS_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
     private static final int MAX_QUEUE = 18;
-
-    private int unstressCooldown = 0;
-    private final Queue<Pair<UUID, TradeInfo>> queue = new ArrayDeque<>();
-    private final Queue<Pair<UUID, ItemStack>> crafted = new ArrayDeque<>();
-
     private static final List<TradeInfo> TRADES = List.of(
-            new TradeInfo(new ItemStack(Items.SNOWBALL, 4), Items.SNOW_BLOCK.getDefaultInstance(), 10, 10, 10),
-            new TradeInfo(new ItemStack(Items.SPRUCE_LOG, 4), new ItemStack(Items.SPRUCE_LEAVES, 8), Items.GOLD_INGOT.getDefaultInstance(), SantaBlocks.CHRISTMAS_TREE.toStack(), 100, 40, 40),
-            new TradeInfo(Items.SUGAR.getDefaultInstance(), Items.RED_DYE.getDefaultInstance(), SantaItems.CANDY_CANE.toStack(), 20, 20, 10),
-            new TradeInfo(new ItemStack(Items.WHEAT, 2), Items.COCOA_BEANS.getDefaultInstance(), new ItemStack(Items.COOKIE, 8), 10, 10, 10),
-            new TradeInfo(new ItemStack(Items.SUGAR, 4), new ItemStack(Items.COCOA_BEANS, 4), Items.MILK_BUCKET.getDefaultInstance(), AllFluids.CHOCOLATE.getBucket().orElseThrow().getDefaultInstance(), 40, 80, 60)
+            new TradeInfo(new ItemCost(Items.SNOWBALL, 4), Items.SNOW_BLOCK.getDefaultInstance(), 10, 10, 10),
+            new TradeInfo(new ItemCost(Items.SPRUCE_LOG, 4), new ItemCost(Items.SPRUCE_LEAVES, 8), new ItemCost(Items.GOLD_INGOT), SantaBlocks.CHRISTMAS_TREE.toStack(), 100, 40, 40),
+            new TradeInfo(new ItemCost(Items.SUGAR), new ItemCost(Items.RED_DYE), SantaItems.CANDY_CANE.toStack(), 20, 20, 10),
+            new TradeInfo(new ItemCost(Items.WHEAT, 2), new ItemCost(Items.COCOA_BEANS), new ItemStack(Items.COOKIE, 8), 10, 10, 10),
+            new TradeInfo(new ItemCost(Items.WHEAT, 2), new ItemCost(Items.COCOA_BEANS), new ItemStack(Items.COOKIE, 8), 10, 10, 10),
+            new TradeInfo(new ItemCost(Items.SUGAR, 4), new ItemCost(Items.COCOA_BEANS, 4), new ItemCost(Items.MILK_BUCKET), AllFluids.CHOCOLATE.getBucket().orElseThrow().getDefaultInstance(), 40, 80, 60)
     );
 
     @Nullable
     private ElfChargeStationBlockEntity chargeStation = null;
+    private int unstressCooldown = 0;
+    private final Queue<Pair<UUID, TradeInfo>> queue = new ArrayDeque<>();
+    private final Queue<Pair<UUID, ItemStack>> crafted = new ArrayDeque<>();
 
     /* INIT */
     public RoboElf(EntityType<? extends PathfinderMob> entityType, Level level) {
@@ -120,13 +121,6 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     /* GETTERS AND SETTERS */
     public float getCharge() {
         return this.entityData.get(CHARGE_ID);
-    }
-
-    @Override
-    public void onDamageTaken(DamageContainer damageContainer) {
-        Entity source = damageContainer.getSource().getEntity();
-        if(!(source instanceof Player player)) return;
-        SantaAttachmentTypes.trust(player, -10);
     }
 
     public void setCharge(float charge) {
@@ -179,6 +173,99 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         return crafted;
     }
 
+    public void setCharging(@Nullable BlockPos pos) {
+        if(pos == null) {
+            if(chargeStation != null && !chargeStation.isRemoved())
+                chargeStation.stopCharging();
+            chargeStation = null;
+            return;
+        }
+        if(!(level().getBlockEntity(pos) instanceof ElfChargeStationBlockEntity be)) return;
+        chargeStation = be;
+        be.startCharging();
+    }
+
+    public boolean isCharging() {
+        return chargeStation != null && !chargeStation.isRemoved();
+    }
+
+    /* NBT */
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putFloat("Charge", this.getCharge());
+        compound.putInt("Stress", this.getStress());
+
+        if(chargeStation != null) BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, chargeStation.getBlockPos())
+                .result()
+                .ifPresent(nbt -> compound.put("ChargeStation", nbt));
+        ListTag queue = new ListTag();
+        for (Pair<UUID, TradeInfo> pair : this.queue) {
+            CompoundTag entry = new CompoundTag();
+
+            entry.putUUID("Owner", pair.getFirst());
+
+            entry.putInt("Id", TRADES.indexOf(pair.getSecond()));
+            queue.add(entry);
+        }
+        compound.put("TradesQueue", queue);
+
+        ListTag crafted = new ListTag();
+        for(Pair<UUID, ItemStack> pair : this.crafted) {
+            CompoundTag entry = new CompoundTag();
+            entry.putUUID("Owner", pair.getFirst());
+            entry.put("Item", pair.getSecond().save(this.registryAccess()));
+            crafted.add(entry);
+        }
+        compound.put("CraftedItems", crafted);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        if(compound.contains("Charge", Tag.TAG_ANY_NUMERIC))
+            this.setCharge(compound.getFloat("Charge"));
+        if(compound.contains("Stress", Tag.TAG_ANY_NUMERIC))
+            this.setStress(compound.getInt("Stress"));
+        if(compound.contains("ChargeStation")) {
+            var pos = BlockPos.CODEC.parse(NbtOps.INSTANCE, compound.get("ChargeStation")).result().orElse(null);
+            if(pos == null) chargeStation = null;
+            else {
+                var be = level().getBlockEntity(pos);
+                if(be instanceof ElfChargeStationBlockEntity e) chargeStation = e;
+                else chargeStation = null;
+            }
+        }
+        queue.clear();
+        for (Tag tag : compound.getList("TradesQueue", Tag.TAG_COMPOUND)) {
+            CompoundTag entry = (CompoundTag) tag;
+
+            UUID uuid = entry.getUUID("Owner");
+            int index = entry.getInt("Id");
+            if(index < 0 || index >= TRADES.size()) continue;
+            TradeInfo info = TRADES.get(index);
+            queue.offer(Pair.of(uuid, info));
+        }
+        crafted.clear();
+        var list = compound.getList("CraftedItems", Tag.TAG_COMPOUND);
+        for(int i = 0; i < Math.min(list.size(), MAX_QUEUE); i++) {
+            CompoundTag entry = list.getCompound(i);
+            UUID uuid = entry.getUUID("Owner");
+            ItemStack itemStack = ItemStack.parseOptional(this.registryAccess(), entry.getCompound("Item"));
+            crafted.offer(Pair.of(uuid, itemStack));
+        }
+    }
+
+    /* LOGIC */
+
+    @Override
+    public void onDamageTaken(DamageContainer damageContainer) {
+        Entity source = damageContainer.getSource().getEntity();
+        if(!(source instanceof Player player)) return;
+        SantaAttachmentTypes.trust(player, -10);
+    }
+
     @Override
     protected void pickUpItem(ItemEntity itemEntity) {
         if(PackageItem.isPackage(itemEntity.getItem())) {
@@ -189,47 +276,45 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
 
     @Override
     public void tick() {
+        if(!level().isClientSide) {
+            /* UNSTRESS */
+            if (unstressCooldown > 0) unstressCooldown -= (getCharge() == 0 || isCharging() ? 10 : 1);
+            else {
+                stress(-1);
+                unstressCooldown = SantaConfig.ELF_UNSTRESS_COOLDOWN.getAsInt();
+            }
+
+            if (getStress() > 70 /* TODO: CONFIG VALUE */ && getCharge() > 0) {
+                extractCharge(0.1f);
+                Vec3 m = VecHelper.offsetRandomly(new Vec3(0, .25f, 0), getRandom(), .125f);
+                ((ServerLevel) level()).sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, getX(), getY(), getZ(), 1, m.x, m.y, m.z, .01f);
+            }
+
+            if (getCharge() == 0) {
+                navigation.stop();
+            }
+
+            if (chargeStation != null && !isStationValid()) {
+                setCharging(null);
+            }
+            if (this.getCharge() >= this.getMaxCharge()) setCharging(null);
+            if (chargeStation != null) {
+                chargeStation.update(this);
+                Vec3 pos1 = chargeStation.getBlockPos().relative(chargeStation.getBlockState().getValue(ElfChargeStationBlock.HORIZONTAL_FACING), 2).getCenter();
+                this.lookControl.setLookAt(pos1.x, pos1.y, pos1.z);
+            }
+
+            boolean fl = chargeStation == null && getCharge() > 0;
+            for (var flag : Goal.Flag.values()) {
+                goalSelector.setControlFlag(flag, fl);
+            }
+        }
         super.tick();
-        if(level().isClientSide) return;
-        if(unstressCooldown > 0) unstressCooldown-=(getCharge() == 0 || isCharging() ? 10 : 1);
-        else {
-            stress(-1);
-            unstressCooldown = SantaConfig.ELF_UNSTRESS_COOLDOWN.getAsInt();
-        }
-        if(getStress() > 70 && getCharge() > 0) {
-            extractCharge(0.1f);
-            ((ServerLevel)level()).sendParticles(ParticleTypes.CAMPFIRE_SIGNAL_SMOKE, getX(), getY(), getZ(), 1, 0,  1, 0, 0.05);
-        }
-        if(getCharge() == 0) {
-            navigation.stop();
-        }
-        if(chargeStation != null && chargeStation.isRemoved()) {
-            setCharging(null);
-            reloadFlags();
-            return;
-        }
-        if(chargeStation == null) {
-            reloadFlags();
-            return;
-        }
-        var a = blockPosition();
-        if(!chargeStation.getBlockPos().relative(chargeStation.getBlockState().getValue(ElfChargeStationBlock.HORIZONTAL_FACING)).equals(a)) {
-            setCharging(null);
-            reloadFlags();
-            return;
-        }
-        chargeStation.update(this);
-        Vec3 pos1 = chargeStation.getBlockPos().relative(chargeStation.getBlockState().getValue(ElfChargeStationBlock.HORIZONTAL_FACING), 2).getCenter();
-        this.lookControl.setLookAt(pos1.x, pos1.y, pos1.z);
-        if(this.getCharge() >= this.getMaxCharge()) setCharging(null);
-        reloadFlags();
     }
 
-    public void reloadFlags() {
-        boolean fl = chargeStation == null && getCharge() > 0;
-        for(var flag : Goal.Flag.values()) {
-            goalSelector.setControlFlag(flag, fl);
-        }
+    public boolean isStationValid() {
+        assert chargeStation != null;
+        return !chargeStation.isRemoved() && this.distanceToSqr(chargeStation.getBlockPos().relative(chargeStation.getBlockState().getValue(ElfChargeStationBlock.HORIZONTAL_FACING)).getCenter()) < 0.5 /* TODO: Configurable? */;
     }
 
     @Override
@@ -260,60 +345,6 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-        compound.putFloat("Charge", this.getCharge());
-        compound.putInt("Stress", this.getStress());
-
-        ListTag queue = new ListTag();
-        for (Pair<UUID, TradeInfo> pair : this.queue) {
-            CompoundTag entry = new CompoundTag();
-
-            entry.putUUID("Owner", pair.getFirst());
-
-            entry.putInt("Id", TRADES.indexOf(pair.getSecond()));
-            queue.add(entry);
-        }
-        compound.put("TradesQueue", queue);
-
-        ListTag crafted = new ListTag();
-        for(Pair<UUID, ItemStack> pair : this.crafted) {
-            CompoundTag entry = new CompoundTag();
-            entry.putUUID("Owner", pair.getFirst());
-            entry.put("Item", pair.getSecond().save(this.registryAccess()));
-            crafted.add(entry);
-        }
-        compound.put("CraftedItems", crafted);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        if(compound.contains("Charge", Tag.TAG_ANY_NUMERIC))
-            this.setCharge(compound.getFloat("Charge"));
-        if(compound.contains("Stress", Tag.TAG_ANY_NUMERIC))
-            this.setStress(compound.getInt("Stress"));
-        queue.clear();
-        for (Tag tag : compound.getList("TradesQueue", Tag.TAG_COMPOUND)) {
-            CompoundTag entry = (CompoundTag) tag;
-
-            UUID uuid = entry.getUUID("Owner");
-            int index = entry.getInt("Id");
-            if(index < 0 || index >= TRADES.size()) continue;
-            TradeInfo info = TRADES.get(index);
-            queue.offer(Pair.of(uuid, info));
-        }
-        crafted.clear();
-        var list = compound.getList("CraftedItems", Tag.TAG_COMPOUND);
-        for(int i = 0; i < Math.min(list.size(), MAX_QUEUE); i++) {
-            CompoundTag entry = list.getCompound(i);
-            UUID uuid = entry.getUUID("Owner");
-            ItemStack itemStack = ItemStack.parseOptional(this.registryAccess(), entry.getCompound("Item"));
-            crafted.offer(Pair.of(uuid, itemStack));
-        }
-    }
-
-    @Override
     public boolean removeWhenFarAway(double distanceToClosestPlayer) {
         return false;
     }
@@ -322,23 +353,6 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     public boolean isPushable() {
         if(this.chargeStation != null) return false;
         return super.isPushable();
-    }
-
-    public void setCharging(@Nullable BlockPos pos) {
-        if(pos == null) {
-            if(chargeStation != null) {
-                if(chargeStation.getBlockState().is(SantaBlocks.ELF_CHARGE_STATION.get()))
-                    level().setBlock(chargeStation.getBlockPos(), chargeStation.getBlockState().setValue(ElfChargeStationBlock.OCCUPIED, false), 3);
-            }
-            chargeStation = null;
-
-            reloadFlags();
-            return;
-        }
-        if(!(level().getBlockEntity(pos) instanceof ElfChargeStationBlockEntity be)) return;
-        level().setBlock(pos, be.getBlockState().setValue(ElfChargeStationBlock.OCCUPIED, true), 3);
-        chargeStation = be;
-        reloadFlags();
     }
 
     @Nullable
@@ -353,10 +367,6 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
             return pos.relative(direction);
         }
         return null;
-    }
-
-    public boolean isCharging() {
-        return chargeStation != null;
     }
 
     @Override
@@ -397,11 +407,51 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         if(crafted.size()+amount>=MAX_QUEUE) return;
         if(craftIndex < 0 || craftIndex >= TRADES.size()) return;
         TradeInfo info = TRADES.get(craftIndex);
-        for(int i = 0; i < amount; i++)
+
+
+        for(int i = 0; i < amount; i++) {
+            if(!extractFromPlayer(info.getIngredients(), player)) continue;
             queue.offer(Pair.of(player.getUUID(), info));
+        }
+
         SantaAttachmentTypes.trust(player, amount*info.getTrustGain());
         //TODO: Extract items from player
 
+    }
+
+    private boolean extractFromPlayer(ItemCost[] costs, Player player) {
+        Inventory inventory = player.getInventory();
+
+        // Verification
+        for (ItemCost cost : costs) {
+            if (cost == null) continue;
+            int needed = cost.count();
+            for (int i = 0; i < inventory.getContainerSize(); i++) {
+                ItemStack stack = inventory.getItem(i);
+                if (ItemStack.isSameItemSameComponents(stack, cost.itemStack())) {
+                    needed -= stack.getCount();
+                }
+                if (needed <= 0) break;
+            }
+            if (needed > 0) return false; // Non abbastanza oggetti per questo costo
+        }
+
+        // Extraction
+        for (ItemCost cost : costs) {
+            if (cost == null) continue;
+            int toRemove = cost.count();
+            for (int i = 0; i < inventory.getContainerSize(); i++) {
+                ItemStack stack = inventory.getItem(i);
+                if (ItemStack.isSameItemSameComponents(stack, cost.itemStack())) {
+                    int taken = Math.min(toRemove, stack.getCount());
+                    stack.shrink(taken);
+                    toRemove -= taken;
+                }
+                if (toRemove <= 0) break;
+            }
+        }
+
+        return true;
     }
 
     public void setCrafted(UUID owner, ItemStack stack) {

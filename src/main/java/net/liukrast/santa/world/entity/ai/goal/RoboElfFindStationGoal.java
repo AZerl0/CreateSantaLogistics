@@ -27,7 +27,9 @@ public class RoboElfFindStationGoal extends MoveToBlockGoal {
 
     @Override
     public boolean canUse() {
-        return elf.getStress() < 70 && elf.getCharge()/elf.getMaxCharge() < (SantaConfig.ELF_RECHARGE_PERCENTAGE.getAsInt()/100f) && this.findNearestBlock();
+        if(elf.getStress() >= 70) return false;
+        if(elf.getCharge()/elf.getMaxCharge() >= (SantaConfig.ELF_RECHARGE_PERCENTAGE.getAsInt()/100f)) return false;
+        return this.findNearestBlock();
     }
 
     @Override

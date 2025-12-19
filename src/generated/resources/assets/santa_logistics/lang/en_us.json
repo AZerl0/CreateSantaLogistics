@@ -61,6 +61,10 @@
   "santa_logistics.gui.robo_elf.capacity": "Remaining Charge",
   "santa_logistics.gui.robo_elf.info_header": "Robo Elf Information:",
   "santa_logistics.gui.robo_elf.title": "Activity Stress",
+  "santa_logistics.gui.santa_claus.info_header": "Santa Claus Information:",
+  "santa_logistics.gui.santa_claus.satisfaction": "Satisfaction level",
+  "santa_logistics.gui.santa_claus.satisfaction_a": "Reward A:",
+  "santa_logistics.gui.santa_claus.satisfaction_b": "Reward B:",
   "santa_logistics.tooltip.overclock": "Overclock Amount:",
   "santa_logistics.tooltip.temperature": "Temperature:",
   "santa_logistics.tooltip.temperature_per_tick": "per tick"
