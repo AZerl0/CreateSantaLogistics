@@ -1,4 +1,4 @@
-// 1.21.1	2025-12-17T01:55:41.1881575	Loot Tables
+// 1.21.1	2025-12-19T17:20:23.7597792	Loot Tables
 7284e88ac8d7621cbfb09c0e3089ef571a081ae0 data/santa_logistics/loot_table/blocks/budding_cryolite.json
 da8343cef627ccb3a420fc04a8f2f4f153c25a3f data/santa_logistics/loot_table/blocks/christmas_tree.json
 e37617df1af5bb66eecc762ad5c38c06839cb230 data/santa_logistics/loot_table/blocks/cryolite_block.json
@@ -10,6 +10,7 @@ ad4c52ff4148716092919875399c7990ab8c35ec data/santa_logistics/loot_table/blocks/
 d02c4fd97d07dc3341e3fe655e99a9e37066d230 data/santa_logistics/loot_table/blocks/santa_dock.json
 1766463e354cb45a05d529591e74373129640d56 data/santa_logistics/loot_table/blocks/santa_door.json
 65d681fdb7d60b4ef761ef2fb6427ee8e9361fbc data/santa_logistics/loot_table/blocks/santa_vault_door.json
+8c16a582d9246cc1ee4a46ee5833fa28d27a4fca data/santa_logistics/loot_table/blocks/schedule_clock.json
 b8d4ebf4de04655cd3acb38a060f20cd5a7b1afc data/santa_logistics/loot_table/blocks/small_cryolite_bud.json
 2d9ef2278919565171683a8b017a752dff90fa6d data/santa_logistics/loot_table/entities/robo_elf.json
 833004c0d07761c93dd178d798fac272a546ba9d data/santa_logistics/loot_table/entities/santa_claus.json

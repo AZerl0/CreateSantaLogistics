@@ -19,6 +19,6 @@ public class RoboElfRenderer extends MobRenderer<RoboElf, RoboElfModel> {
 
     @Override
     public ResourceLocation getTextureLocation(RoboElf entity) {
-        return TEXTURE;
+        return TEXTURE; //TODO: Oxidize texture!
     }
 }

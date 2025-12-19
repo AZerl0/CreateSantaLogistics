@@ -4,10 +4,12 @@ import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.logistics.packagerLink.WiFiParticle;
+import net.liukrast.santa.SantaLang;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.world.inventory.SantaDockMenu;
 import net.liukrast.santa.world.level.block.SantaDockBlock;
 import net.liukrast.santa.world.level.block.SantaDocks;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -161,15 +163,26 @@ public class SantaDockBlockEntity extends BaseContainerBlockEntity implements IH
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         var state = getBlockState().getValue(SantaDockBlock.STATE);
-        tooltip.add(Component.literal("    ").append(Component.translatable(
-                "block.santa_logistics.santa_dock.tooltip_0",
-                Component.translatable("block.santa_logistics.santa_dock.status." + state.getSerializedName())
-        )));
+        SantaLang.translate("gui.santa_dock.info_header").forGoggles(tooltip);
+        SantaLang.translate("gui.santa_dock.status")
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip);
+        SantaLang.translate("gui.santa_dock.status." + state.getSerializedName())
+                .add(Component.literal(" " + state.getSuffix()))
+                .style(state.getFormat())
+                .forGoggles(tooltip, 1);
+
         if(state == SantaDockBlock.State.CONNECTED) {
-            tooltip.add(Component.literal("    ").append(Component.translatable("block.santa_logistics.santa_dock.status.connected.tooltip_0")));
+            SantaLang.translate("gui.santa_dock.status.connected.info_header")
+                    .style(ChatFormatting.GRAY)
+                    .forGoggles(tooltip);
         } else if(state == SantaDockBlock.State.ERROR) {
-            tooltip.add(Component.translatable("block.santa_logistics.santa_dock.status.error.tooltip_0"));
-            tooltip.add(Component.translatable("block.santa_logistics.santa_dock.status.error."+status.toString().toLowerCase()));
+            SantaLang.translate("gui.santa_dock.status.error.info_header")
+                    .style(ChatFormatting.GRAY)
+                    .forGoggles(tooltip);
+            SantaLang.translate("gui.santa_dock.status.error." + status.toString().toLowerCase())
+                    .style(ChatFormatting.GOLD)
+                    .forGoggles(tooltip, 1);
         }
         return true;
     }

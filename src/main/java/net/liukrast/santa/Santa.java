@@ -10,6 +10,7 @@ import net.liukrast.santa.datagen.tags.SantaItemTagsProvider;
 import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
 import net.liukrast.santa.world.SantaContainer;
+import net.liukrast.santa.world.entity.RoboElf;
 import net.liukrast.santa.world.level.block.FrostburnEngineBlock;
 import net.liukrast.santa.world.level.block.SantaDocks;
 import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
@@ -22,7 +23,10 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -35,6 +39,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -207,6 +212,7 @@ public class Santa {
         generator.addProvider(event.includeServer(), blockTagProvider);
         generator.addProvider(event.includeServer(), new SantaItemTagsProvider(packOutput, lookupProvider, blockTagProvider.contentsGetter(), helper));
         var dataPackProvider = new SantaDatapackBuiltinEntriesProvider(packOutput, lookupProvider);
+        generator.addProvider(event.includeServer(), dataPackProvider);
         generator.addProvider(event.includeServer(), new LootTableProvider(packOutput, Collections.emptySet(),
                 List.of(
                         new LootTableProvider.SubProviderEntry(SantaBlockLootSubProvider::new, LootContextParamSets.BLOCK),
@@ -238,5 +244,10 @@ public class Santa {
                 },
                 SantaBlocks.FROSTBURN_ENGINE.get()
         );
+    }
+
+    @SubscribeEvent
+    public void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        event.register(SantaEntityTypes.ROBO_ELF.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, RoboElf::checkSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 }

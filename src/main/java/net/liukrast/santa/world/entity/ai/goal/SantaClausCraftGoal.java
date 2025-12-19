@@ -2,7 +2,6 @@ package net.liukrast.santa.world.entity.ai.goal;
 
 import net.createmod.catnip.math.VecHelper;
 import net.liukrast.santa.registry.SantaItems;
-import net.liukrast.santa.world.entity.RoboElf;
 import net.liukrast.santa.world.entity.SantaClaus;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -18,18 +17,18 @@ public class SantaClausCraftGoal extends Goal {
 
     protected final SantaClaus mob;
     private int cooldown = 0;
-    private int secondCooldown = 0;
     private boolean sat;
     private ItemStack stack;
 
     public SantaClausCraftGoal(SantaClaus mob) {
         this.mob = mob;
+        setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
 
     @Override
     public boolean canUse() {
-        return cooldown > 0 || secondCooldown > 0 || (mob.isSatisfiedA() || mob.isSatisfiedB() && mob.getMainHandItem().isEmpty());
+        return (mob.isSatisfiedA() || mob.isSatisfiedB()) && mob.getMainHandItem().isEmpty();
     }
 
     @Override
@@ -50,13 +49,6 @@ public class SantaClausCraftGoal extends Goal {
             mob.setItemInHand(InteractionHand.MAIN_HAND, stack);
             if(sat) mob.setSatisfactionA(0);
             else mob.setSatisfactionB(0);
-            secondCooldown = 20;
-        }
-        if(secondCooldown > 0) {
-            secondCooldown--;
-        } else {
-            mob.spawnAtLocation(mob.getMainHandItem());
-            mob.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
     }
 

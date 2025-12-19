@@ -39,7 +39,7 @@ public class SantaBlocks {
     public static final DeferredBlock<Block> FROSTBURN_ENGINE = register("frostburn_engine", () -> new FrostburnEngineBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()), SantaStressImpacts.withStressCapacity(32), BlockStressValues.setGeneratorSpeed(32));
     public static final DeferredBlock<Block> SHIELDED_STONE = register("shielded_stone", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)));
     public static final DeferredBlock<Block> PRIME_CRYOLITE_BLOCK = register("prime_cryolite_block", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)), SantaBlocks::wrapWithShiftSummary, true);
-
+    public static final DeferredBlock<ScheduleClockBlock> SCHEDULE_CLOCK = register("schedule_clock", () -> new ScheduleClockBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_PLANKS)), SantaBlocks::wrapWithShiftSummary, true);
 
     @SafeVarargs
     private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, Consumer<T>... applications) {

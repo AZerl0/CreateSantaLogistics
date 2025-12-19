@@ -53,6 +53,10 @@ public class SantaConstants {
     }
 
     public static boolean fluidCapabilityExtension(Block block) {
-        return block == SantaBlocks.PRIME_CRYOLITE_BLOCK.get() || block == SantaBlocks.FROSTBURN_ENGINE.get();
+        return block == SantaBlocks.FROSTBURN_ENGINE.get();
+    }
+
+    public static <T> ResourceKey<T> registerKey(ResourceKey<? extends Registry<T>> registry, String name) {
+        return ResourceKey.create(registry, id(name));
     }
 }

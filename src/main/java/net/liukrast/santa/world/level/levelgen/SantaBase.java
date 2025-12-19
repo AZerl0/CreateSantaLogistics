@@ -12,11 +12,14 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
@@ -93,7 +96,12 @@ public class SantaBase extends SavedData {
             BlockPos pos1 = new BlockPos(x, h, z);
             base.setPos(pos1);
             sendUpdate(level, pos1);
-            //TODO: Place structure
+            Optional<StructureTemplate> template = level.getStructureManager().get(SantaConstants.id("santa_base"));
+            if(template.isEmpty()) {
+                SantaConstants.LOGGER.error("Unable to find santa base structure file");
+                return null;
+            }
+            template.get().placeInWorld(level, pos1, pos1, new StructurePlaceSettings(), StructureBlockEntity.createRandom(0), 2);
             SantaConstants.LOGGER.info("Santa Logistics has placed correctly the structure");
             return pos1;
         }
@@ -148,10 +156,7 @@ public class SantaBase extends SavedData {
     }
 
     private static boolean isSnowy(Holder<Biome> biome) {
-        return biome.is(Biomes.SNOWY_PLAINS)
-                || biome.is(Biomes.SNOWY_TAIGA)
-                || biome.is(Biomes.ICE_SPIKES)
-                || biome.is(Biomes.GROVE);
+        return biome.is(Tags.Biomes.IS_SNOWY);
     }
 
     @Override

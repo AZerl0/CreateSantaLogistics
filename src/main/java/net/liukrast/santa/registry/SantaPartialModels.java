@@ -9,6 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 public class SantaPartialModels {
     private SantaPartialModels() {}
 
+    public static final PartialModel FROSTBURN_CORE = PartialModel.of(SantaConstants.id("block/frostburn_engine/core"));
+    public static final PartialModel FROSTBURN_CORE_RING = PartialModel.of(SantaConstants.id("block/frostburn_engine/core_ring"));
+
     static {
         for(PackageStyles.PackageStyle style : SantaPackages.PRESENTS) {
             ResourceLocation key = SantaConstants.id(style.type() + "_present");

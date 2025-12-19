@@ -33,13 +33,14 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.*;
@@ -51,7 +52,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
@@ -62,6 +65,7 @@ import java.util.*;
 
 @NonnullDefault
 public class RoboElf extends PathfinderMob implements DeployerGoggleInformation, MenuProvider {
+    private static final EntityDataAccessor<Byte> OXIDATION_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Float> CHARGE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> STRESS_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
     private static final int MAX_QUEUE = 18;
@@ -84,6 +88,17 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     public RoboElf(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.setCharge(this.getMaxCharge());
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+        if(spawnType == MobSpawnType.NATURAL || spawnType == MobSpawnType.CHUNK_GENERATION) {
+            //Any value but clean
+            setOxidation(OxidationStage.values()[1+level.getRandom().nextInt(OxidationStage.values().length-1)]);
+            setCharge(level.getRandom().nextFloat()*getMaxCharge());
+        }
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
     @Override
@@ -109,6 +124,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         super.defineSynchedData(builder);
         builder.define(CHARGE_ID, 1f);
         builder.define(STRESS_ID, 0);
+        builder.define(OXIDATION_ID,(byte) 0);
     }
 
     public static AttributeSupplier.Builder createRoboElfAttributes() {
@@ -118,7 +134,18 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
                 .add(SantaAttributes.MAX_CHARGE, 1024);
     }
 
+    public static boolean checkSpawnRules(EntityType<? extends RoboElf> elf, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource source) {
+        return MobSpawnType.ignoresLightRequirements(spawnType) || level.getRawBrightness(pos, 0) > 8;
+    }
+
     /* GETTERS AND SETTERS */
+    public OxidationStage getOxidation() {
+        return OxidationStage.values()[entityData.get(OXIDATION_ID)];
+    }
+    public void setOxidation(OxidationStage value) {
+        this.entityData.set(OXIDATION_ID, (byte)value.ordinal());
+    }
+
     public float getCharge() {
         return this.entityData.get(CHARGE_ID);
     }
@@ -196,7 +223,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         super.addAdditionalSaveData(compound);
         compound.putFloat("Charge", this.getCharge());
         compound.putInt("Stress", this.getStress());
-
+        compound.putByte("Oxidation", (byte) this.getOxidation().ordinal());
         if(chargeStation != null) BlockPos.CODEC.encodeStart(NbtOps.INSTANCE, chargeStation.getBlockPos())
                 .result()
                 .ifPresent(nbt -> compound.put("ChargeStation", nbt));
@@ -228,6 +255,8 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
             this.setCharge(compound.getFloat("Charge"));
         if(compound.contains("Stress", Tag.TAG_ANY_NUMERIC))
             this.setStress(compound.getInt("Stress"));
+        if(compound.contains("Oxidation", Tag.TAG_BYTE))
+            this.setOxidation(OxidationStage.values()[compound.getByte("Oxidation")]);
         if(compound.contains("ChargeStation")) {
             var pos = BlockPos.CODEC.parse(NbtOps.INSTANCE, compound.get("ChargeStation")).result().orElse(null);
             if(pos == null) chargeStation = null;
@@ -277,6 +306,9 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     @Override
     public void tick() {
         if(!level().isClientSide) {
+            if(getCharge() <= 0 && getRandom().nextInt(1000) < 1) {
+                setOxidation(getOxidation().next());
+            }
             /* UNSTRESS */
             if (unstressCooldown > 0) unstressCooldown -= (getCharge() == 0 || isCharging() ? 10 : 1);
             else {
@@ -304,7 +336,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
                 this.lookControl.setLookAt(pos1.x, pos1.y, pos1.z);
             }
 
-            boolean fl = chargeStation == null && getCharge() > 0;
+            boolean fl = chargeStation == null && getCharge() > 0 && getOxidation().isActive();
             for (var flag : Goal.Flag.values()) {
                 goalSelector.setControlFlag(flag, fl);
             }
@@ -320,7 +352,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     @Override
     public void travel(Vec3 travelVector) {
         super.travel(travelVector);
-        double motion = travelVector.length() * (getStress()/10f);
+        double motion = travelVector.length() * ((getStress()+1)/10f);
         extractCharge((float) motion);
     }
 
@@ -341,6 +373,13 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
                 .add(su)
                 .style(IRotate.StressImpact.of(1-(remainingCharge/getMaxCharge())).getRelativeColor());
         stressTip.forGoggles(tooltip, 1);
+        SantaLang.translate("gui.robo_elf.oxidation")
+                .style(ChatFormatting.GRAY)
+                .forGoggles(tooltip);
+        var oxidation = getOxidation();
+        SantaLang.translate("gui.robo_elf.oxidation." + oxidation.name().toLowerCase())
+                .style(oxidation.format())
+                .forGoggles(tooltip, 1);
         return true;
     }
 
@@ -371,12 +410,16 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if(player.isShiftKeyDown() && insertCharge(1)<=0) {
+        ItemStack stack = player.getItemInHand(hand);
+        if(!getOxidation().isActive() && stack.is(ItemTags.AXES)) {
+            setOxidation(getOxidation().prev());
+            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+            return InteractionResult.SUCCESS;
+            //TODO: Particles
+        } else if(player.isShiftKeyDown() && getOxidation().isActive() && insertCharge(1)<=0) {
             player.causeFoodExhaustion(2);
             return InteractionResult.SUCCESS;
-        }
-        ItemStack stack = player.getItemInHand(hand);
-        if(stack.is(Items.COOKIE) && getCharge() == 0) {
+        } else if(stack.is(Items.COOKIE) && getCharge() == 0) {
             stress(-1);
             stack.consume(1, player);
             return InteractionResult.SUCCESS;
@@ -408,14 +451,12 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         if(craftIndex < 0 || craftIndex >= TRADES.size()) return;
         TradeInfo info = TRADES.get(craftIndex);
 
-
         for(int i = 0; i < amount; i++) {
             if(!extractFromPlayer(info.getIngredients(), player)) continue;
             queue.offer(Pair.of(player.getUUID(), info));
+            SantaAttachmentTypes.trust(player, info.getTrustGain());
         }
 
-        SantaAttachmentTypes.trust(player, amount*info.getTrustGain());
-        //TODO: Extract items from player
 
     }
 
@@ -433,7 +474,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
                 }
                 if (needed <= 0) break;
             }
-            if (needed > 0) return false; // Non abbastanza oggetti per questo costo
+            if (needed > 0) return false;
         }
 
         // Extraction
@@ -457,5 +498,38 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     public void setCrafted(UUID owner, ItemStack stack) {
         this.crafted.offer(Pair.of(owner, stack));
         //TODO: Sort!!
+    }
+
+    public enum OxidationStage {
+        CLEAN, EXPOSED, WEATHERED, OXIDIZED;
+
+        public boolean isActive() {
+            return this == CLEAN;
+        }
+
+        public OxidationStage next() {
+            return switch (this) {
+                case OXIDIZED, WEATHERED -> OXIDIZED;
+                case EXPOSED -> WEATHERED;
+                case CLEAN -> EXPOSED;
+            };
+        }
+
+        public OxidationStage prev() {
+            return switch (this) {
+                case CLEAN, EXPOSED -> CLEAN;
+                case WEATHERED -> EXPOSED;
+                case OXIDIZED -> WEATHERED;
+            };
+        }
+
+        public ChatFormatting format() {
+            return switch (this) {
+                case CLEAN -> ChatFormatting.GREEN;
+                case EXPOSED -> ChatFormatting.YELLOW;
+                case WEATHERED -> ChatFormatting.GOLD;
+                case OXIDIZED -> ChatFormatting.RED;
+            };
+        }
     }
 }

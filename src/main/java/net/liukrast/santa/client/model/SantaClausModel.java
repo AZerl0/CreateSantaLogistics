@@ -120,6 +120,9 @@ public class SantaClausModel extends EntityModel<SantaClaus> implements ArmedMod
         beard.resetPose();
         right_arm.resetPose();
         left_arm.resetPose();
+        right_leg.resetPose();
+        left_leg.resetPose();
+        chest.resetPose();
         /* ALL POSES */
         hat.xRot = -0.1f + Mth.cos(limbSwing)*limbSwingAmount*0.05f + Mth.sin(ageInTicks*.1f)*.01f;
         hat.yRot = -0.1f;
@@ -212,7 +215,24 @@ public class SantaClausModel extends EntityModel<SantaClaus> implements ArmedMod
                 beard.y += Mth.sin(ageInTicks);
             }
             case SLEEPING -> {
+                body.y+=8;
+                body.xRot-=0.5f;
 
+                right_leg.xRot-=Mth.PI/2;
+                left_leg.xRot-=Mth.PI/2;
+                right_leg.zRot-=0.3f;
+                left_leg.zRot+=0.3f;
+                right_leg.yRot+=0.5f;
+                left_leg.yRot-=0.5f;
+
+                right_leg.z-=12;
+                left_leg.z-=12;
+                right_leg.y-=6;
+                left_leg.y-=6;
+                right_leg.x-=6;
+                left_leg.x+=6;
+
+                chest.xRot+=0.1f;
             }
         }
     }

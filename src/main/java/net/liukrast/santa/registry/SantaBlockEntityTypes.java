@@ -3,6 +3,7 @@ package net.liukrast.santa.registry;
 import dev.engine_room.flywheel.lib.visualization.SimpleBlockEntityVisualizer;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.client.renderer.block.ElfChargeStationRenderer;
+import net.liukrast.santa.client.renderer.block.FrostburnEngineRenderer;
 import net.liukrast.santa.client.renderer.block.SantaDoorBlockEntityRenderer;
 import net.liukrast.santa.client.visual.block.ElfChargeStationVisual;
 import net.liukrast.santa.client.visual.block.FrostburnEngineVisual;
@@ -39,6 +40,7 @@ public class SantaBlockEntityTypes {
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(SANTA_DOOR.get(), SantaDoorBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ELF_CHARGE_STATION.get(), ElfChargeStationRenderer::new);
+        event.registerBlockEntityRenderer(FROSTBURN_ENGINE.get(), FrostburnEngineRenderer::new);
     }
 
     @OnlyIn(Dist.CLIENT)

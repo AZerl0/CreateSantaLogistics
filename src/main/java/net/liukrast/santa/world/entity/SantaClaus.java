@@ -20,20 +20,25 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
@@ -95,6 +100,9 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
             }
         });
         this.goalSelector.addGoal(1, new SantaClausCollectFoodGoal(this));
+
+        this.goalSelector.addGoal(5, new LookAtPlayerGoal(this, Player.class, 6.0F));
+        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
     }
 
     @Override
@@ -123,8 +131,7 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
         return stack.is(SantaTags.Items.SANTA_FOOD_B);
     }
 
-    public void incrementSatisfaction(ItemStack stack, boolean typeA) {
-        int increment = stack.getCount();
+    public void incrementSatisfaction(int increment, boolean typeA) {
         if(typeA) setSatisfactionA(Mth.clamp(getSatisfactionA()+increment, 0, 100));
         else setSatisfactionB(Mth.clamp(getSatisfactionB()+increment, 0, 100));
     }
@@ -177,22 +184,37 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
     /* LOGIC */
 
     @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return false;
+    }
+
+    public boolean shouldBeSleeping() {
+        long day = level().getDayTime() % 24000;
+        return day >= SantaConstants.NIGHT_END + SantaConstants.LEAVE_DURATION || day < SantaConstants.NIGHT_START - SantaConstants.LEAVE_DURATION - 6000;
+    }
+
+    public boolean shouldBeGone() {
+        long day = level().getDayTime() % 24000;
+        return day < SantaConstants.NIGHT_END + SantaConstants.LEAVE_DURATION && day >= SantaConstants.NIGHT_START - SantaConstants.LEAVE_DURATION;
+    }
+
+    @Override
     public void tick() {
 
         if(!isNoAi()) {
-            long day = level().getDayTime() % 24000;
-            boolean shouldSleep = false;//TODO: day >= SantaConstants.NIGHT_END + SantaConstants.LEAVE_DURATION || day < SantaConstants.NIGHT_START - SantaConstants.LEAVE_DURATION - 6000;
-            boolean shouldBeGone = day < SantaConstants.NIGHT_END + SantaConstants.LEAVE_DURATION && day >= SantaConstants.NIGHT_START - SantaConstants.LEAVE_DURATION;
+            boolean shouldSleep = shouldBeSleeping();
+            boolean shouldBeGone = shouldBeGone();
 
             var state = (getAnimationState() == State.SLEEPING);
             if (shouldBeGone) {
                 //TODO: Spawn particles
+                ((ServerLevel)level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.SNOW_BLOCK.getDefaultInstance()), getX(), getY(), getZ(), 40, 1, 0, 1, 0.4);
                 this.discard();
             } else if (state != shouldSleep) {
                 setAnimationState(shouldSleep ? State.SLEEPING : State.IDLE);
-                for (var flag : Goal.Flag.values()) {
-                    goalSelector.setControlFlag(flag, shouldSleep);
-                }
+            }
+            for (var flag : Goal.Flag.values()) {
+                goalSelector.setControlFlag(flag, !shouldSleep);
             }
         }
         super.tick();
@@ -201,6 +223,12 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
     @Override
     public boolean isInvulnerable() {
         return true;
+    }
+
+    @Override
+    public boolean isPushable() {
+        if(getAnimationState() == State.SLEEPING) return false;
+        return super.isPushable();
     }
 
     @Override
@@ -221,14 +249,29 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip);
         SantaLang.translate("gui.santa_claus.satisfaction_a")
-                .add(Component.literal(" " + LangNumberFormat.format(getSatisfactionA())))
-                .add(Component.literal("/100 ⭐"))
-                .style(IRotate.StressImpact.of(1-getSatisfactionA()/100f).getRelativeColor()).forGoggles(tooltip, 1);
+                .add(Component.literal(" " + LangNumberFormat.format(getSatisfactionA()))
+                        .withStyle(ChatFormatting.AQUA)
+                ).add(Component.literal("/100 ⭐")
+                        .withStyle(ChatFormatting.AQUA)
+                )
+                .style(ChatFormatting.DARK_GRAY)
+                .forGoggles(tooltip, 1);
         SantaLang.translate("gui.santa_claus.satisfaction_b")
-                .add(Component.literal(" " + LangNumberFormat.format(getSatisfactionB())))
-                .add(Component.literal("/100 ⭐"))
-                .style(IRotate.StressImpact.of(1-getSatisfactionB()/100f).getRelativeColor()).forGoggles(tooltip, 1);
+                .add(Component.literal(" " + LangNumberFormat.format(getSatisfactionB()))
+                        .withStyle(ChatFormatting.AQUA)
+                ).add(Component.literal("/100 ⭐")
+                        .withStyle(ChatFormatting.AQUA)
+                )
+                .style(ChatFormatting.DARK_GRAY)
+                .forGoggles(tooltip, 1);
         return true;
+    }
+
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if(getMainHandItem().isEmpty()) return super.mobInteract(player, hand);
+        player.getInventory().add(getMainHandItem());
+        return InteractionResult.SUCCESS;
     }
 
     public enum State {

@@ -1,6 +1,7 @@
 package net.liukrast.santa.registry;
 
 import net.liukrast.santa.SantaConstants;
+import net.liukrast.santa.world.item.FrostburnCoreItem;
 import net.liukrast.santa.world.item.PresentItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
@@ -23,7 +24,7 @@ public class SantaItems {
     public static final DeferredItem<DeferredSpawnEggItem> SANTA_CLAUS_SPAWN_EGG = REGISTER.register("santa_claus_spawn_egg", () -> new DeferredSpawnEggItem(SantaEntityTypes.SANTA_CLAUS, 0xFF0000, 0xFFFFFF, new Item.Properties()));
     public static final DeferredItem<Item> CANDY_CANE = REGISTER.register("candy_cane", () -> new Item(new Item.Properties()));
 
-    public static final DeferredItem<Item> FROSTBURN_CORE = REGISTER.register("frostburn_core", () -> new Item(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1)));
+    public static final DeferredItem<Item> FROSTBURN_CORE = REGISTER.register("frostburn_core", () -> new FrostburnCoreItem(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1)));
 
     public static final DeferredItem<Item> SANTA_KEY = REGISTER.register("santa_key", () -> new Item(new Item.Properties().rarity(Rarity.EPIC).stacksTo(1)));
 

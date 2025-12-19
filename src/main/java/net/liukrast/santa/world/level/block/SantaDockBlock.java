@@ -3,6 +3,7 @@ package net.liukrast.santa.world.level.block;
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.equipment.wrench.IWrenchable;
 import net.liukrast.santa.world.level.block.entity.SantaDockBlockEntity;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -89,19 +90,31 @@ public class SantaDockBlock extends BaseEntityBlock implements IWrenchable {
     }
 
     public enum State implements StringRepresentable {
-        IDLE("idle"),
-        CONNECTED("connected"),
-        ERROR("error");
+        IDLE("idle", ChatFormatting.YELLOW, "⌚"),
+        CONNECTED("connected", ChatFormatting.GREEN, "✔"),
+        ERROR("error", ChatFormatting.RED, "❌");
 
+        private final ChatFormatting formatting;
+        private final String suffix;
         private final String value;
-        State(String value) {
+        State(String value, ChatFormatting formatting, String suffix) {
             this.value = value;
+            this.formatting = formatting;
+            this.suffix = suffix;
         }
 
 
         @Override
         public String getSerializedName() {
             return value;
+        }
+
+        public ChatFormatting getFormat() {
+            return formatting;
+        }
+
+        public String getSuffix() {
+            return suffix;
         }
     }
 }

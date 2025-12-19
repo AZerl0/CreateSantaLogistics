@@ -10,12 +10,16 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.EnumSet;
+
 public class SantaClausEatGoal extends Goal {
     private int cooldown;
     private final SantaClaus santa;
+    private boolean canContinueUse;
 
     public SantaClausEatGoal(SantaClaus santa) {
         this.santa = santa;
+        setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
     @Override
@@ -25,9 +29,15 @@ public class SantaClausEatGoal extends Goal {
     }
 
     @Override
+    public boolean canContinueToUse() {
+        return super.canContinueToUse() && canContinueUse;
+    }
+
+    @Override
     public void start() {
         santa.setAnimationState(SantaClaus.State.EATING);
         cooldown = 20;
+        canContinueUse = true;
     }
 
     @Override
@@ -45,8 +55,9 @@ public class SantaClausEatGoal extends Goal {
             var stack = santa.getMainHandItem();
             boolean a = santa.isTypeAFood(stack);
             if(!a && !santa.isTypeBFood(stack)) return;
-            santa.incrementSatisfaction(stack, a);
+            santa.incrementSatisfaction(1, a);
             santa.getMainHandItem().consume(1, santa);
+            canContinueUse = false;
         }
     }
 }
