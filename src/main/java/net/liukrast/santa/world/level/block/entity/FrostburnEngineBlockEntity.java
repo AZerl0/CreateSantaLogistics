@@ -158,12 +158,12 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
         SantaLang.number(overclock.value).add(Component.literal("°")).style(color).add(Component.literal(" ")).add(SantaLang.translateDirect("tooltip.temperature_per_tick").withStyle(ChatFormatting.DARK_GRAY)).forGoggles(tooltip, 1);
         SantaLang.translate("tooltip.temperature").style(ChatFormatting.GRAY).forGoggles(tooltip);
         int bars = 40;
-
-        var c = Component.literal("     ")
-                .append(bars(temperature*bars/MAX_TEMPERATURE, ChatFormatting.RED))
-                .append(bars(bars - (temperature*bars/MAX_TEMPERATURE), ChatFormatting.GREEN));
-
-        tooltip.add(isPlayerSneaking ? c.withStyle(ChatFormatting.DARK_GRAY).append(Component.literal(" (")).append(String.valueOf(temperature)).append(")") : c);
+        var builder = SantaLang.builder()
+                .add(bars(temperature*bars/MAX_TEMPERATURE, ChatFormatting.RED))
+                .add(bars(bars - (temperature*bars/MAX_TEMPERATURE), ChatFormatting.GREEN));
+        if(isPlayerSneaking)
+            builder = builder.add(Component.literal("(" + temperature + ")").withStyle(ChatFormatting.GRAY));
+        builder.forGoggles(tooltip, 1);
         return true;
     }
 
