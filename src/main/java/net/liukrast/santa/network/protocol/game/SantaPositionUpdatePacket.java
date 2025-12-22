@@ -37,7 +37,7 @@ public record SantaPositionUpdatePacket(BlockPos origin, List<BlockPos> docks) i
         SleighRenderer.ORIGIN = this.origin;
         SleighRenderer.DOCKS = new ArrayList<>();
         SleighRenderer.DOCKS.add(new Node(
-                origin.getX() + 0.5f, origin.getZ()+SantaConstants.EXIT_LENGTH + 0.5f, 0, 10
+                origin.getX() + 0.5f + SantaConstants.EXIT_LENGTH, origin.getZ() + 0.5f, 10, 0
         ));
         for(int i = 0; i < docks.size(); i++) {
             BlockPos curr = docks.get(i);
@@ -51,7 +51,7 @@ public record SantaPositionUpdatePacket(BlockPos origin, List<BlockPos> docks) i
             ));
         }
         SleighRenderer.DOCKS.add(new Node(
-                origin.getX() + 0.5f, origin.getZ()+0.5f-SantaConstants.EXIT_LENGTH, 0, 10
+                origin.getX() + 0.5f-SantaConstants.EXIT_LENGTH, origin.getZ()+0.5f, 10, 0
         ));
     }
 }

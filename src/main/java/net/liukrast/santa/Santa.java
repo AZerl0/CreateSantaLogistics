@@ -1,5 +1,6 @@
 package net.liukrast.santa;
 
+import com.simibubi.create.content.kinetics.waterwheel.WaterWheelBlockEntity;
 import com.simibubi.create.content.logistics.box.PackageItem;
 import net.liukrast.santa.datagen.*;
 import net.liukrast.santa.datagen.loot.SantaBlockLootSubProvider;
@@ -11,12 +12,16 @@ import net.liukrast.santa.network.protocol.game.SantaPositionUpdatePacket;
 import net.liukrast.santa.registry.*;
 import net.liukrast.santa.world.SantaContainer;
 import net.liukrast.santa.world.entity.RoboElf;
+import net.liukrast.santa.world.entity.SantaClaus;
 import net.liukrast.santa.world.level.block.FrostburnEngineBlock;
 import net.liukrast.santa.world.level.block.SantaDocks;
+import net.liukrast.santa.world.level.block.SantaDoorBlock;
 import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
 import net.liukrast.santa.world.level.block.entity.SantaDockBlockEntity;
+import net.liukrast.santa.world.level.entity.SantaState;
 import net.liukrast.santa.world.level.levelgen.SantaBase;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -26,6 +31,10 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.IEventBus;
@@ -97,16 +106,55 @@ public class Santa {
         if(origin == null) return;
         long dayTimeRaw = level.getDayTime();
         int time = (int) (dayTimeRaw % 24000);
-        if(time > SantaConstants.NIGHT_START-SantaConstants.LEAVE_DURATION && time < SantaConstants.NIGHT_END+SantaConstants.LEAVE_DURATION && !firedNightStart) {
-            firedNightStart = true;
-            List<Map.Entry<BlockPos, String>> ordered = map.entrySet().stream()
-                    .sorted(Comparator.comparingDouble(e -> e.getKey().distSqr(origin)))
-                    .toList();
-            PacketDistributor.sendToAllPlayers(new SantaPositionUpdatePacket(origin, ordered.stream().map(Map.Entry::getKey).toList()));
+        if(time > SantaConstants.NIGHT_START-SantaConstants.LEAVE_DURATION && time < SantaConstants.NIGHT_END+SantaConstants.LEAVE_DURATION) {
+            if(!firedNightStart) {
+                firedNightStart = true;
+                List<Map.Entry<BlockPos, String>> ordered = map.entrySet().stream()
+                        .sorted(Comparator.comparingDouble(e -> e.getKey().distSqr(origin)))
+                        .toList();
+                PacketDistributor.sendToAllPlayers(new SantaPositionUpdatePacket(origin, ordered.stream().map(Map.Entry::getKey).toList()));
+                SantaDocks.get(level).updateQueuedDocks();
+                BlockPos door = origin.offset(-2,0,5);
+                BlockState state = level.getBlockState(door);
+                if(state.is(SantaBlocks.SANTA_DOOR)) {
+                    level.gameEvent(null, GameEvent.BLOCK_CLOSE, door);
+                    level.setBlock(door, level.getBlockState(door).setValue(SantaDoorBlock.OPEN, false), 2);
+                }
+            }
         } else firedNightStart = false;
-        if(time > SantaConstants.NIGHT_END+SantaConstants.LEAVE_DURATION || time < SantaConstants.NIGHT_START-SantaConstants.LEAVE_DURATION && !firedNightEnd) {
-            firedNightEnd = true;
-            SantaDocks.get(level).updateQueuedDocks();
+        if(time > SantaConstants.NIGHT_END+SantaConstants.LEAVE_DURATION || time < SantaConstants.NIGHT_START-SantaConstants.LEAVE_DURATION) {
+            if(!firedNightEnd) {
+                firedNightEnd = true;
+                SantaDocks.get(level).updateQueuedDocks();
+                BlockPos door = origin.offset(-2,0,5);
+                BlockState state = level.getBlockState(door);
+                if(state.is(SantaBlocks.SANTA_DOOR)) {
+                    level.gameEvent(null, GameEvent.BLOCK_OPEN, door);
+                    level.setBlock(door, level.getBlockState(door).setValue(SantaDoorBlock.OPEN, true), 2);
+                }
+
+                boolean shouldSpawn = !SantaState.isSantaSpawned(level);
+                if(shouldSpawn) {
+                    SantaClaus claus = SantaEntityTypes.SANTA_CLAUS.get().create(level);
+                    assert claus != null;
+                    claus.setPos(origin.getCenter());
+                    level.addFreshEntity(claus);
+                    SantaState.setState(level, true);
+                }
+
+                List<BlockPos> offsets = List.of(
+                        new BlockPos(-11, 0, 14),
+                        new BlockPos(-11, 0, 18),
+                        new BlockPos(9, 6, 14)
+                );
+
+                for(BlockPos waterWheel : offsets) {
+                    waterWheel = origin.offset(waterWheel.getX(), waterWheel.getY(), waterWheel.getZ());
+                    if(level.getBlockEntity(waterWheel) instanceof WaterWheelBlockEntity be) {
+                        be.updateGeneratedRotation();
+                    }
+                }
+            }
         } else firedNightEnd = false;
         if (time < SantaConstants.NIGHT_START || time > SantaConstants.NIGHT_END) return;
         int size = map.size();
@@ -231,6 +279,7 @@ public class Santa {
         event.registerBlock(
                 Capabilities.FluidHandler.BLOCK,
                 (level, pos, state, __, side) -> {
+                    if(side != Direction.UP) return null;
                     var block = state.getBlock();
                     if(!(block instanceof FrostburnEngineBlock engine)) return null;
                     int index = state.getValue(engine.getPartsProperty());

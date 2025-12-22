@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "A": {
+      "item": "santa_logistics:christmas_tree"
+    },
+    "B": {
+      "item": "create:display_board"
+    },
+    "C": {
+      "item": "create:electron_tube"
+    },
+    "D": {
+      "tag": "c:plates/iron"
+    },
+    "E": {
+      "item": "create:andesite_casing"
+    }
+  },
+  "pattern": [
+    "ABC",
+    "DED"
+  ],
+  "result": {
+    "count": 1,
+    "id": "santa_logistics:santa_dock"
+  }
+}

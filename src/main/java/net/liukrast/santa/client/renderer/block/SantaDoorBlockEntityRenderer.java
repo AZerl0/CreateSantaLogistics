@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.client.model.IModel;
 import net.liukrast.santa.client.model.SantaDoorModel;
+import net.liukrast.santa.client.model.SantaVaultDoorModel;
 import net.liukrast.santa.registry.SantaBlocks;
 import net.liukrast.santa.world.level.block.SantaDoorBlock;
 import net.liukrast.santa.world.level.block.entity.SantaDoorBlockEntity;
@@ -27,7 +28,8 @@ import java.util.Map;
 @NonnullDefault
 public class SantaDoorBlockEntityRenderer implements BlockEntityRenderer<SantaDoorBlockEntity> {
     private static final Map<Block, IModel> MODEL_MAP = Map.of(
-            SantaBlocks.SANTA_DOOR.get(), new SantaDoorModel()
+            SantaBlocks.SANTA_DOOR.get(), new SantaDoorModel(),
+            SantaBlocks.SANTA_VAULT_DOOR.get(), new SantaVaultDoorModel()
     );
 
 
@@ -60,16 +62,14 @@ public class SantaDoorBlockEntityRenderer implements BlockEntityRenderer<SantaDo
         float xProgress = Mth.clamp(Mth.clamp(gameTime - blockEntity.lastStateTime, 0, animDuration) + partialTick, 0, animDuration)/animDuration;
         float progress = (flag ? 1-Mth.cos(xProgress*Mth.PI) : 1+Mth.cos(xProgress*Mth.PI)) /2f;
         model.setupAnim(blockEntity, partialTick, progress);
-        model.render(poseStack, bufferSource, packedLight, packedOverlay);
+        model.render(poseStack, model.getConsumer(blockEntity, bufferSource), packedLight, packedOverlay);
     }
 
     @Override
     public AABB getRenderBoundingBox(SantaDoorBlockEntity blockEntity) {
+        var model = MODEL_MAP.get(blockEntity.getBlockState().getBlock());
         var state = blockEntity.getBlockState();
         var dir = state.getValue(SantaDoorBlock.FACING);
-        var cl = dir.getCounterClockWise();
-        return BlockEntityRenderer.super.getRenderBoundingBox(blockEntity)
-                .expandTowards(new Vec3(dir.getStepX()*3, 3, dir.getStepZ()*3))
-                .expandTowards(new Vec3(cl.getStepX()*3, 0, cl.getStepZ()*3));
+        return model.getRenderBound(BlockEntityRenderer.super.getRenderBoundingBox(blockEntity), blockEntity, state, dir);
     }
 }

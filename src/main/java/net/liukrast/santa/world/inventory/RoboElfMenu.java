@@ -1,6 +1,7 @@
 package net.liukrast.santa.world.inventory;
 
 import net.liukrast.santa.registry.SantaMenuTypes;
+import net.liukrast.santa.world.entity.RoboElf;
 import net.liukrast.santa.world.entity.TradeInfo;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
@@ -17,13 +18,13 @@ import java.util.List;
 @NonnullDefault
 public class RoboElfMenu extends AbstractContainerMenu {
     public final List<TradeInfo> trades;
-    public final Entity entity;
+    public final RoboElf entity;
 
     public RoboElfMenu(int containerId, Inventory playerInventory, RegistryFriendlyByteBuf buf) {
-        this(containerId, playerInventory, buf.readList($ -> TradeInfo.STREAM_CODEC.decode(buf)), playerInventory.player.level().getEntity(buf.readInt()));
+        this(containerId, playerInventory, buf.readList($ -> TradeInfo.STREAM_CODEC.decode(buf)), (RoboElf) playerInventory.player.level().getEntity(buf.readInt()));
     }
 
-    public RoboElfMenu(int containerId, Inventory playerInventory, List<TradeInfo> trades, Entity entity) {
+    public RoboElfMenu(int containerId, Inventory playerInventory, List<TradeInfo> trades, RoboElf entity) {
         super(SantaMenuTypes.ROBO_ELF_MENU.get(), containerId);
         this.trades = trades;
         this.entity = entity;

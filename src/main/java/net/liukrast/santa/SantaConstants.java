@@ -25,7 +25,7 @@ public class SantaConstants {
     public static final int NIGHT_END = 23000;
     public static final int LEAVE_DURATION = 200;
     public static final int EXIT_LENGTH = 100;
-    public static final int EXIT_HEIGTH = 40;
+    public static final int EXIT_HEIGTH = 200;
 
     protected static final CreateRegistrate REGISTRATE = SantaRegistrate.create(SantaConstants.MOD_ID)
             .defaultCreativeTab((ResourceKey<CreativeModeTab>) null);

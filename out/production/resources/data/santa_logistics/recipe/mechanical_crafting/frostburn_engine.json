@@ -1,0 +1,31 @@
+{
+  "type": "create:mechanical_crafting",
+  "accept_mirrored": false,
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "santa_logistics:frostburn_core"
+    },
+    "B": {
+      "item": "create:fluid_tank"
+    },
+    "C": {
+      "item": "create:sturdy_sheet"
+    },
+    "D": {
+      "item": "create:mechanical_pump"
+    }
+  },
+  "pattern": [
+    " D D ",
+    "DCBCD",
+    " BAB ",
+    "DCBCD",
+    " D D "
+  ],
+  "result": {
+    "count": 1,
+    "id": "santa_logistics:frostburn_engine"
+  },
+  "show_notification": false
+}

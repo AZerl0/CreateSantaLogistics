@@ -7,6 +7,8 @@
     "santa_logistics:cryolite_cluster",
     "santa_logistics:large_cryolite_bud",
     "santa_logistics:medium_cryolite_bud",
-    "santa_logistics:small_cryolite_bud"
+    "santa_logistics:small_cryolite_bud",
+    "santa_logistics:santa_vault_door",
+    "santa_logistics:frostburn_engine"
   ]
 }

@@ -11,6 +11,7 @@ public class SantaPartialModels {
 
     public static final PartialModel FROSTBURN_CORE = PartialModel.of(SantaConstants.id("block/frostburn_engine/core"));
     public static final PartialModel FROSTBURN_CORE_RING = PartialModel.of(SantaConstants.id("block/frostburn_engine/core_ring"));
+    public static final PartialModel FROSTBURN_COG_SECTION_A = PartialModel.of(SantaConstants.id("block/frostburn_engine/cog_section_a"));
 
     static {
         for(PackageStyles.PackageStyle style : SantaPackages.PRESENTS) {

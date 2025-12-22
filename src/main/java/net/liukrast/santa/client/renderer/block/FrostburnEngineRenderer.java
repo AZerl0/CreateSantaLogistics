@@ -52,17 +52,30 @@ public class FrostburnEngineRenderer extends KineticBlockEntityRenderer<Frostbur
         ms.popPose();
         ms.popPose();
 
+        vb = buffer.getBuffer(RenderType.cutoutMipped());
+        assert be.getLevel() != null;
+        int lightBehind = LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().below());
+
+
+        SuperByteBuffer cog = CachedBuffers.partial(SantaPartialModels.FROSTBURN_COG_SECTION_A, be.getBlockState());
+        ms.pushPose();
+        ms.translate(0, 3/16f, 0);
+        for(int i = 0; i < 8; i++) {
+            ms.pushPose();
+            standardKineticRotationTransform(cog, be, lightBehind)
+                    .rotateCentered(Axis.YP.rotationDegrees(45*i))
+                    .renderInto(ms, vb);
+            ms.popPose();
+        }
+        ms.popPose();
+
 
         if (VisualizationManager.supportsVisualization(be.getLevel())) return;
 
-        Direction direction = Direction.UP;
 
-
-        assert be.getLevel() != null;
-        int lightBehind = LevelRenderer.getLightColor(be.getLevel(), be.getBlockPos().relative(direction.getOpposite()));
 
         SuperByteBuffer shaftHalf =
-                CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, be.getBlockState(), direction.getOpposite());
+                CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, be.getBlockState(), Direction.DOWN);
 
         standardKineticRotationTransform(shaftHalf, be, lightBehind).renderInto(ms, vb);
     }

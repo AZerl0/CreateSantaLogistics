@@ -1,0 +1,201 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+	{
+	  "bonus_rolls": 0,
+	  "entries": [
+		{
+		  "type": "minecraft:item",
+		  "functions": [],
+		  "name": "santa_logistics:cryolite_bucket",
+		  "weight": 2
+		},
+		{
+		  "type": "minecraft:item",
+		  "name": "minecraft:sugar",
+		  "weight": 2,
+		  "functions": [
+			{
+			  "function": "minecraft:set_count",
+			  "count": {
+				"type": "minecraft:uniform",
+				"min": 1,
+				"max": 4
+			  }
+			}
+		  ]
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "function": "minecraft:enchant_with_levels",
+			  "levels": {
+				"type": "minecraft:uniform",
+				"max": 50,
+				"min": 30
+			  },
+			  "options": "#minecraft:on_random_loot"
+			}
+		  ],
+		  "name": "minecraft:milk_bucket",
+		  "weight": 2
+		},
+		{
+		  "type": "minecraft:item",
+		  "name": "create:bar_of_chocolate",
+		  "weight": 3
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [],
+		  "name": "create:honey_bucket",
+		  "weight": 3
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [],
+		  "name": "create:chocolate_bucket",
+		  "weight": 3
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "add": false,
+			  "count": {
+				"type": "minecraft:uniform",
+				"max": 4,
+				"min": 1
+			  },
+			  "function": "minecraft:set_count"
+			}
+		  ],
+		  "name": "minecraft:cookie",
+		  "weight": 3
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "add": false,
+			  "count": {
+				"type": "minecraft:uniform",
+				"max": 15,
+				"min": 1
+			  },
+			  "function": "minecraft:set_count"
+			}
+		  ],
+		  "name": "santa_logistics:candy_cane",
+		  "weight": 3
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "add": false,
+			  "count": {
+				"type": "minecraft:uniform",
+				"max": 3,
+				"min": 1
+			  },
+			  "function": "minecraft:set_count"
+			}
+		  ],
+		  "name": "minecraft:experience_bottle",
+		  "weight": 3
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "add": false,
+			  "count": {
+				"type": "minecraft:uniform",
+				"max": 3,
+				"min": 1
+			  },
+			  "function": "minecraft:set_count"
+			}
+		  ],
+		  "name": "santa_logistics:red_present",
+		  "weight": 4
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "add": false,
+			  "count": {
+				"type": "minecraft:uniform",
+				"max": 15,
+				"min": 1
+			  },
+			  "function": "minecraft:set_count"
+			}
+		  ],
+		  "name": "santa_logistics:cryolite_block",
+		  "weight": 5
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "add": false,
+			  "count": {
+				"type": "minecraft:uniform",
+				"max": 15,
+				"min": 1
+			  },
+			  "function": "minecraft:set_count"
+			}
+		  ],
+		  "name": "santa_logistics:cryolite_powder",
+		  "weight": 5
+		},
+		{
+		  "type": "minecraft:item",
+		  "functions": [
+			{
+			  "add": false,
+			  "count": {
+				"type": "minecraft:uniform",
+				"max": 15,
+				"min": 6
+			  },
+			  "function": "minecraft:set_count"
+			}
+		  ],
+		  "name": "santa_logistics:cryolite_shard",
+		  "weight": 7
+		}
+	  ],
+	  "rolls": {
+		"type": "minecraft:uniform",
+		"max": 10,
+		"min": 5
+	  }
+	},
+	{
+	  "bonus_rolls": 0,
+	  "entries": [
+		{
+		  "type": "minecraft:empty",
+		  "weight": 75
+		},
+		{
+		  "type": "minecraft:item",
+		  "name": "minecraft:ward_armor_trim_smithing_template",
+		  "weight": 4
+		},
+		{
+		  "type": "minecraft:item",
+		  "name": "minecraft:silence_armor_trim_smithing_template"
+		}
+	  ],
+	  "rolls": 1
+	}
+  ],
+  "random_sequence": "minecraft:chests/ancient_city"
+}

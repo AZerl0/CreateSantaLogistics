@@ -1,7 +1,7 @@
-// 1.21.1	2025-12-11T14:52:08.1251938	Tags for minecraft:block mod id santa_logistics
+// 1.21.1	2025-12-22T13:12:49.4272288	Tags for minecraft:block mod id santa_logistics
 2fdef6a8f9e92f55ae015287e3740229cc260a4c data/c/tags/block/budding_blocks.json
 3e11b463bf65570298f1bafe3a4fc855829a54c7 data/c/tags/block/clusters.json
 3055d56d8320ef5d5fd992d4545f9566656f06f7 data/minecraft/tags/block/crystal_sound_blocks.json
 3bbf4afa43420d6b93e0267b501bf7ceae076c30 data/minecraft/tags/block/mineable/axe.json
-2d7d274f89a9a10de627487a4f1a20c568080f46 data/minecraft/tags/block/mineable/pickaxe.json
+beed5963b98bf6315c37cbbb47c6014243cbcd86 data/minecraft/tags/block/mineable/pickaxe.json
 558b7c5eee339f8f626dee3f0c0fbede86a65df5 data/minecraft/tags/block/vibration_resonators.json

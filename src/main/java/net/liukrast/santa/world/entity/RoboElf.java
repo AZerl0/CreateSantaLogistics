@@ -33,6 +33,8 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -68,14 +70,17 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     private static final EntityDataAccessor<Byte> OXIDATION_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Float> CHARGE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> STRESS_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
-    private static final int MAX_QUEUE = 18;
+    private static final EntityDataAccessor<Integer> QUEUE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> CRAFTED_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
+    public static final int MAX_QUEUE = 18;
     private static final List<TradeInfo> TRADES = List.of(
             new TradeInfo(new ItemCost(Items.SNOWBALL, 4), Items.SNOW_BLOCK.getDefaultInstance(), 10, 10, 10),
             new TradeInfo(new ItemCost(Items.SPRUCE_LOG, 4), new ItemCost(Items.SPRUCE_LEAVES, 8), new ItemCost(Items.GOLD_INGOT), SantaBlocks.CHRISTMAS_TREE.toStack(), 100, 40, 40),
             new TradeInfo(new ItemCost(Items.SUGAR), new ItemCost(Items.RED_DYE), SantaItems.CANDY_CANE.toStack(), 20, 20, 10),
             new TradeInfo(new ItemCost(Items.WHEAT, 2), new ItemCost(Items.COCOA_BEANS), new ItemStack(Items.COOKIE, 8), 10, 10, 10),
             new TradeInfo(new ItemCost(Items.WHEAT, 2), new ItemCost(Items.COCOA_BEANS), new ItemStack(Items.COOKIE, 8), 10, 10, 10),
-            new TradeInfo(new ItemCost(Items.SUGAR, 4), new ItemCost(Items.COCOA_BEANS, 4), new ItemCost(Items.MILK_BUCKET), AllFluids.CHOCOLATE.getBucket().orElseThrow().getDefaultInstance(), 40, 80, 60)
+            new TradeInfo(new ItemCost(Items.SUGAR, 4), new ItemCost(Items.COCOA_BEANS, 4), new ItemCost(Items.MILK_BUCKET), AllFluids.CHOCOLATE.getBucket().orElseThrow().getDefaultInstance(), 40, 80, 60),
+            new TradeInfo(new ItemCost(SantaBlocks.BUDDING_CRYOLITE.asItem()), new ItemCost(SantaItems.CRYOLITE_SHARD.asItem()), new ItemStack(SantaBlocks.BUDDING_CRYOLITE), 10, 100, 200)
     );
 
     @Nullable
@@ -125,6 +130,8 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         builder.define(CHARGE_ID, 1f);
         builder.define(STRESS_ID, 0);
         builder.define(OXIDATION_ID,(byte) 0);
+        builder.define(QUEUE_ID, 0);
+        builder.define(CRAFTED_ID, 0);
     }
 
     public static AttributeSupplier.Builder createRoboElfAttributes() {
@@ -134,7 +141,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
                 .add(SantaAttributes.MAX_CHARGE, 1024);
     }
 
-    public static boolean checkSpawnRules(EntityType<? extends RoboElf> elf, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource source) {
+    public static boolean checkSpawnRules(EntityType<? extends RoboElf> ignored, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource ignored1) {
         return MobSpawnType.ignoresLightRequirements(spawnType) || level.getRawBrightness(pos, 0) > 8;
     }
 
@@ -216,6 +223,14 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         return chargeStation != null && !chargeStation.isRemoved();
     }
 
+    public int getQueueSize() {
+        return entityData.get(QUEUE_ID);
+    }
+
+    public int getCraftedSize() {
+        return entityData.get(CRAFTED_ID);
+    }
+
     /* NBT */
 
     @Override
@@ -284,6 +299,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
             ItemStack itemStack = ItemStack.parseOptional(this.registryAccess(), entry.getCompound("Item"));
             crafted.offer(Pair.of(uuid, itemStack));
         }
+        reloadQueueStats();
     }
 
     /* LOGIC */
@@ -413,10 +429,14 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         ItemStack stack = player.getItemInHand(hand);
         if(!getOxidation().isActive() && stack.is(ItemTags.AXES)) {
             setOxidation(getOxidation().prev());
+            level().playSound(player, blockPosition(), SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level().levelEvent(player, 3004, blockPosition(), 0);
             stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
             return InteractionResult.SUCCESS;
             //TODO: Particles
-        } else if(player.isShiftKeyDown() && getOxidation().isActive() && insertCharge(1)<=0) {
+        } else if(!getOxidation().isActive()) {
+            return InteractionResult.CONSUME;
+        } else if(player.isShiftKeyDown() && insertCharge(1)<=0) {
             player.causeFoodExhaustion(2);
             return InteractionResult.SUCCESS;
         } else if(stack.is(Items.COOKIE) && getCharge() == 0) {
@@ -446,8 +466,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     }
 
     public void enqueueWork(int craftIndex, int amount, Player player) {
-        if(queue.size()+amount >= MAX_QUEUE) return;
-        if(crafted.size()+amount>=MAX_QUEUE) return;
+        if(queue.size()+crafted.size()+amount >= MAX_QUEUE) return;
         if(craftIndex < 0 || craftIndex >= TRADES.size()) return;
         TradeInfo info = TRADES.get(craftIndex);
 
@@ -456,6 +475,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
             queue.offer(Pair.of(player.getUUID(), info));
             SantaAttachmentTypes.trust(player, info.getTrustGain());
         }
+        reloadQueueStats();
 
 
     }
@@ -498,6 +518,11 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     public void setCrafted(UUID owner, ItemStack stack) {
         this.crafted.offer(Pair.of(owner, stack));
         //TODO: Sort!!
+    }
+
+    public void reloadQueueStats() {
+        this.entityData.set(QUEUE_ID, queue.size());
+        this.entityData.set(CRAFTED_ID, crafted.size());
     }
 
     public enum OxidationStage {

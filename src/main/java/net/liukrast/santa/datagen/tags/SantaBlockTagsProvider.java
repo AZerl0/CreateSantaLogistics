@@ -37,5 +37,8 @@ public class SantaBlockTagsProvider extends BlockTagsProvider {
         this.tag(BlockTags.VIBRATION_RESONATORS).add(SantaBlocks.CRYOLITE_BLOCK.get());
         tag(Tags.Blocks.BUDDING_BLOCKS).add(SantaBlocks.BUDDING_CRYOLITE.get());
         tag(Tags.Blocks.CLUSTERS).add(SantaBlocks.CRYOLITE_CLUSTER.get());
+        pick.add(SantaBlocks.SANTA_VAULT_DOOR.get());
+        pick.add(SantaBlocks.FROSTBURN_ENGINE.get());
+
     }
 }

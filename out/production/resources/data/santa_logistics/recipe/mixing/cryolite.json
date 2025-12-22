@@ -1,0 +1,18 @@
+{
+  "type": "create:mixing",
+  "heat_requirement": "heated",
+  "ingredients": [
+    {
+      "item": "santa_logistics:cryolite_powder"
+    },
+    {
+      "item": "minecraft:snow_block"
+    }
+  ],
+  "results": [
+    {
+      "amount": 1000,
+      "id": "santa_logistics:cryolite"
+    }
+  ]
+}

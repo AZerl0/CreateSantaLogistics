@@ -36,26 +36,28 @@ public class SantaBlocks {
     public static final DeferredBlock<AmethystClusterBlock> LARGE_CRYOLITE_BUD = register("large_cryolite_bud", () -> new AmethystClusterBlock(5,3,BlockBehaviour.Properties.ofFullCopy(Blocks.LARGE_AMETHYST_BUD)));
     public static final DeferredBlock<AmethystClusterBlock> MEDIUM_CRYOLITE_BUD = register("medium_cryolite_bud", () -> new AmethystClusterBlock(4,3,BlockBehaviour.Properties.ofFullCopy(Blocks.MEDIUM_AMETHYST_BUD)));
     public static final DeferredBlock<AmethystClusterBlock> SMALL_CRYOLITE_BUD = register("small_cryolite_bud", () -> new AmethystClusterBlock(3,4,BlockBehaviour.Properties.ofFullCopy(Blocks.SMALL_AMETHYST_BUD)));
-    public static final DeferredBlock<Block> FROSTBURN_ENGINE = register("frostburn_engine", () -> new FrostburnEngineBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()), SantaStressImpacts.withStressCapacity(32), BlockStressValues.setGeneratorSpeed(32));
+    public static final DeferredBlock<FrostburnEngineBlock> FROSTBURN_ENGINE = register("frostburn_engine", () -> new FrostburnEngineBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK).noOcclusion()), SantaStressImpacts.withStressCapacity(32), BlockStressValues.setGeneratorSpeed(32));
     public static final DeferredBlock<Block> SHIELDED_STONE = register("shielded_stone", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)));
-    public static final DeferredBlock<Block> PRIME_CRYOLITE_BLOCK = register("prime_cryolite_block", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)), SantaBlocks::wrapWithShiftSummary, true);
-    public static final DeferredBlock<ScheduleClockBlock> SCHEDULE_CLOCK = register("schedule_clock", () -> new ScheduleClockBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_PLANKS)), SantaBlocks::wrapWithShiftSummary, true);
+    public static final DeferredBlock<Block> PRIME_CRYOLITE_BLOCK = register("prime_cryolite_block", () -> new Block(BlockBehaviour.Properties.ofFullCopy(Blocks.BEDROCK)));
+    public static final DeferredBlock<ScheduleClockBlock> SCHEDULE_CLOCK = register("schedule_clock", () -> new ScheduleClockBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_PLANKS)));
 
     @SafeVarargs
-    private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, Consumer<T>... applications) {
-        return register(name, supplier, item -> {}, true, applications);
+    private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, Consumer<Block>... applications) {
+        return register(name, supplier, true, applications);
     }
 
     @SafeVarargs
-    private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, Consumer<Item> itemConsumer, @SuppressWarnings("SameParameterValue") boolean withItem, Consumer<T>... applications) {
+    private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> supplier, @SuppressWarnings("SameParameterValue") boolean withItem, Consumer<Block>... applications) {
         var defBlock = REGISTER.register(name, () -> {
             var block = supplier.get();
-            for (Consumer<T> application : applications) application.accept(block);
+            for (Consumer<Block> application : applications) application.accept(block);
             return block;
         });
         if(withItem) ITEMS.register(name, () -> {
             var item = new BlockItem(defBlock.get(), new Item.Properties());
-            itemConsumer.accept(item);
+            var modifier = new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
+                    .andThen(TooltipModifier.mapNull(KineticStats.create(item)));
+            TooltipModifier.REGISTRY.register(item, modifier);
             return item;
         });
         return defBlock;
@@ -64,16 +66,5 @@ public class SantaBlocks {
     public static void init(IEventBus eventBus) {
         REGISTER.register(eventBus);
         ITEMS.register(eventBus);
-    }
-
-    /**
-     * Will be replaced with Deployer API
-     * */
-    @Deprecated(forRemoval = true)
-    private static Item wrapWithShiftSummary(Item item) {
-        var modifier = new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                .andThen(TooltipModifier.mapNull(KineticStats.create(item)));
-        TooltipModifier.REGISTRY.register(item, modifier);
-        return item;
     }
 }

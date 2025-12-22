@@ -35,14 +35,12 @@ public class SantaBlockLootSubProvider extends BlockLootSubProvider {
     protected void generate() {
         HolderLookup.RegistryLookup<Enchantment> registrylookup = this.registries.lookupOrThrow(Registries.ENCHANTMENT);
         List<Predicate<Block>> exceptions = List.of(
-                not(SantaBlocks.BUDDING_CRYOLITE),
                 not(SantaBlocks.CRYOLITE_CLUSTER),
                 not(SantaBlocks.SMALL_CRYOLITE_BUD),
                 not(SantaBlocks.MEDIUM_CRYOLITE_BUD),
                 not(SantaBlocks.LARGE_CRYOLITE_BUD)
         );
         SantaConstants.getElements(BuiltInRegistries.BLOCK).filter(b -> b.getLootTable() != BuiltInLootTables.EMPTY && exceptions.stream().allMatch(k -> k.test(b))).forEach(this::dropSelf);
-        this.add(SantaBlocks.BUDDING_CRYOLITE.get(), noDrop());
         add(
                 SantaBlocks.CRYOLITE_CLUSTER.get(),
                 b -> createSilkTouchDispatchTable(

@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -21,6 +22,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -32,7 +37,7 @@ import org.lwjgl.system.NonnullDefault;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @NonnullDefault
-public class SantaDoorBlock extends AbstractFacingMultipartBlock implements EntityBlock {
+public class SantaDoorBlock extends AbstractFacingMultipartBlock implements EntityBlock, LiquidBlockContainer {
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty LOCKED = BooleanProperty.create("locked");
@@ -130,5 +135,23 @@ public class SantaDoorBlock extends AbstractFacingMultipartBlock implements Enti
     protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
         if(!neighborState.is(this)) return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
         return neighborState.setValue(FACING, state.getValue(FACING)).setValue(getPartsProperty(), state.getValue(getPartsProperty()));
+    }
+
+    @Override
+    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+        return switch (pathComputationType) {
+            case LAND, AIR -> state.getValue(OPEN);
+            case WATER -> false;
+        };
+    }
+
+    @Override
+    public boolean canPlaceLiquid(@Nullable Player player, BlockGetter blockGetter, BlockPos blockPos, BlockState blockState, Fluid fluid) {
+        return false;
+    }
+
+    @Override
+    public boolean placeLiquid(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
+        return false;
     }
 }

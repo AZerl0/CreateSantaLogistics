@@ -27,7 +27,7 @@ public class FrostburnCoreRenderer extends CustomRenderedItemModelRenderer {
         ms.pushPose();
         ms.mulPose(Axis.XP.rotation(Mth.cos(worldTime*5)*0.1f));
         ms.mulPose(Axis.ZP.rotation(Mth.sin(worldTime*5)*0.1f));
-        renderer.renderGlowing(SantaPartialModels.FROSTBURN_CORE_RING.get(), LightTexture.FULL_BRIGHT);
+        renderer.render(SantaPartialModels.FROSTBURN_CORE_RING.get(), LightTexture.FULL_BRIGHT);
         ms.popPose();
     }
 }

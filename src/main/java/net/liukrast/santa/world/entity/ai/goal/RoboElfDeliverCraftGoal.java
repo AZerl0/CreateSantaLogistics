@@ -33,6 +33,7 @@ public class RoboElfDeliverCraftGoal extends MeleeAttackGoal {
         var info = roboElf.getCrafted().poll();
         assert info != null;
         this.mob.spawnAtLocation(info.getSecond());
+        roboElf.reloadQueueStats();
         stop();
     }
 }

@@ -114,6 +114,55 @@ public class SantaClausModel extends EntityModel<SantaClaus> implements ArmedMod
         poseStack.translate(0, 0.3, 0);
     }
 
+    public void setupAnimForSleigh(float pitch, float yaw, float ageInTicks) {
+        body.yRot=yaw;
+        body.xRot = pitch;
+
+        hat.xRot = -0.1f + Mth.sin(ageInTicks*.1f)*.01f;
+        hat.yRot = -0.1f;
+        hat.zRot = 0.1f;
+
+        hat_1.yRot = -0.2f + Mth.sin(ageInTicks*.1f)*.05f;
+
+        hat_2.yRot = -0.2f + Mth.sin(ageInTicks*.1f)*.05f;
+        hat_2.zRot = 0.2f;
+
+        hat_3.yRot = -0.5f;
+        hat_3.zRot = -0.3f;
+        hat_3.xRot = Mth.cos(ageInTicks*.1f)*.1f;
+
+        beard.xRot = -0.2f;
+
+        right_mustache.xRot = -0.1f;
+        right_mustache.yRot = -0.2f;
+        right_mustache.zRot = -0.2f;
+
+        left_mustache.xRot = -0.1f;
+        left_mustache.yRot = 0.2f;
+        left_mustache.zRot = 0.2f;
+
+        right_arm.zRot = -0.1f;
+        left_arm.zRot = 0.1f;
+        right_arm.yRot = 0.5f;
+        left_arm.yRot = -0.5f;
+        right_arm.xRot = -1 + Mth.sin(ageInTicks*.1f)*.01f;
+        left_arm.xRot = right_arm.xRot;
+
+        right_leg.z = 0.5f;
+        right_leg.y = 24;
+        left_leg.z = 0.5f;
+        left_leg.y = 24;
+
+        body.y = 24 + Mth.sin(ageInTicks*.1f)*0.1f;
+        right_arm.y = -5;
+        left_arm.y = right_arm.y;
+        body.xRot = 0;
+
+        body.y = 6;
+        right_leg.visible = false;
+        left_leg.visible = false;
+    }
+
     @Override
     public void setupAnim(SantaClaus entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         /* RESET */

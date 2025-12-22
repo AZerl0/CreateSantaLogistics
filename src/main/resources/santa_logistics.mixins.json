@@ -16,7 +16,11 @@
 	"PackageItemMixin",
 	"PackagerItemHandlerMixin",
 	"PumpBlockEntityMixin",
-	"SawBlockEntityMixin"
+	"SawBlockEntityMixin",
+	"ScrollValueBehaviourAccessor",
+	"ScrollValueRendererMixin",
+	"ValueSettingsClientMixin",
+	"ValueSettingsInputHandlerMixin"
   ],
   "client": [
 	"PackageRendererMixin",

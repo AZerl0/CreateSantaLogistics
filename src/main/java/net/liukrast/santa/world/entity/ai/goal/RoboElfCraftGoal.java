@@ -55,6 +55,7 @@ public class RoboElfCraftGoal extends Goal {
             mob.setCrafted(owner, stack);
             mob.extractCharge(trade.getEnergy());
             mob.getQueue().poll();
+            mob.reloadQueueStats();
             this.mob.stress(2);
             cooldown--;
         }

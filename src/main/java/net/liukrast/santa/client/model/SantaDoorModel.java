@@ -1,6 +1,7 @@
 package net.liukrast.santa.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.world.level.block.entity.SantaDoorBlockEntity;
 import net.minecraft.client.model.geom.ModelPart;
@@ -8,8 +9,12 @@ import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class SantaDoorModel implements IModel {
     private static final ResourceLocation TEXTURE = SantaConstants.id("textures/entity/santa_door.png");
@@ -95,8 +100,19 @@ public class SantaDoorModel implements IModel {
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        var vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
-        body.render(poseStack, vertexConsumer, packedLight, packedOverlay);
+    public void render(PoseStack poseStack, VertexConsumer consumer, int packedLight, int packedOverlay) {
+        body.render(poseStack, consumer, packedLight, packedOverlay);
+    }
+
+    @Override
+    public ResourceLocation getTexture(SantaDoorBlockEntity blockEntity) {
+        return TEXTURE;
+    }
+
+    @Override
+    public AABB getRenderBound(AABB original, SantaDoorBlockEntity be, BlockState state, Direction dir) {
+        var cl = dir.getCounterClockWise();
+        return original.expandTowards(new Vec3(dir.getStepX()*3, 3, dir.getStepZ()*3))
+                .expandTowards(new Vec3(cl.getStepX()*3, 0, cl.getStepZ()*3));
     }
 }

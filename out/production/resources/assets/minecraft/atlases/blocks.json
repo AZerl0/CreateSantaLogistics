@@ -1,0 +1,20 @@
+{
+  "sources": [
+	{
+	  "type": "single",
+	  "resource": "santa_logistics:fluid/cryolite_flow"
+	},
+	{
+	  "type": "single",
+	  "resource": "santa_logistics:fluid/cryolite_still"
+	},
+	{
+	  "type": "single",
+	  "resource": "santa_logistics:fluid/molten_sugar_flow"
+	},
+	{
+	  "type": "single",
+	  "resource": "santa_logistics:fluid/molten_sugar_still"
+	}
+  ]
+}

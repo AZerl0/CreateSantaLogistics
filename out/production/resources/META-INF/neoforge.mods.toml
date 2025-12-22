@@ -1,0 +1,41 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+issueTrackerURL="https://github.com/LIUKRAST/CreateSantaLogistics/issues"
+[[mods]]
+modId = "santa_logistics"
+version = "1.0.0"
+displayName = "Create: Santa Logistics"
+displayURL = "https://liukrast.net/"
+logoFile="santa_logistics.png"
+credits="Propants, Francywott, SWZO, AndreaGod231, TearPelato" #optional
+authors = "LiukRast"
+description = '''Christmas is here! Santa built a new sled and is ready for deliveries!
+Unlock the santa dock and find all the secrets'''
+[[mixins]]
+config = "santa_logistics.mixins.json"
+
+# The [[accessTransformers]] block allows you to declare where your AT file is.
+# If this block is omitted, a fallback attempt will be made to load an AT from META-INF/accesstransformer.cfg
+#[[accessTransformers]]
+#file="META-INF/accesstransformer.cfg"
+[[dependencies."santa_logistics"]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."santa_logistics"]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,1.22)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."santa_logistics"]]
+modId = "create"
+type = "required"
+versionRange = "[6.0.8,)"
+ordering = "NONE"
+side = "BOTH"

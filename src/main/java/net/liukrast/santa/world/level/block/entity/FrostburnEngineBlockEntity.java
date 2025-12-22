@@ -9,8 +9,10 @@ import net.liukrast.santa.SantaLang;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.registry.SantaBlocks;
 import net.liukrast.santa.registry.SantaFluids;
+import net.liukrast.santa.world.level.block.entity.behaviour.OverclockScrollValueBehaviour;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -85,7 +87,7 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
 
     @Override
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-        overclock = new ScrollValueBehaviour(Component.empty(), this, new CenteredSideValueBoxTransform((b,s) -> false));
+        overclock = new OverclockScrollValueBehaviour(SantaLang.translateDirect("kinetics.frostburn_engine.overclock"), this, new CenteredSideValueBoxTransform((a,b) -> b.getAxis().isHorizontal()));
         overclock.between(0, 1024);
         overclock.withCallback(i -> updateGeneratedRotation());
         behaviours.add(overclock);
@@ -139,14 +141,16 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
     public void tick() {
         super.tick();
         if(!creative) temperature = Mth.clamp(temperature + overclock.value, 0, MAX_TEMPERATURE);
-        if(temperature == MAX_TEMPERATURE) explode();
+        if(temperature == MAX_TEMPERATURE && !level.isClientSide) explode();
         sendData();
     }
 
     public void explode() {
-        //TODO: For some reason doesn't do damage
         Vec3 pos = getBlockPos().getCenter();
-        this.level.explode(null, level.damageSources().badRespawnPointExplosion(pos), null, pos, 5, true, Level.ExplosionInteraction.BLOCK);
+        this.level.explode(null, new DamageSource(level.damageSources().damageTypes.getHolderOrThrow(DamageTypes.EXPLOSION), pos),
+                null, pos,
+                40, true, Level.ExplosionInteraction.BLOCK
+        );
     }
 
     @Override
@@ -162,7 +166,7 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
                 .add(bars(temperature*bars/MAX_TEMPERATURE, ChatFormatting.RED))
                 .add(bars(bars - (temperature*bars/MAX_TEMPERATURE), ChatFormatting.GREEN));
         if(isPlayerSneaking)
-            builder = builder.add(Component.literal("(" + temperature + ")").withStyle(ChatFormatting.GRAY));
+            builder = builder.add(Component.literal(" (" + temperature + ")").withStyle(ChatFormatting.GRAY));
         builder.forGoggles(tooltip, 1);
         return true;
     }

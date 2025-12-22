@@ -12,10 +12,12 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -36,6 +38,12 @@ public class SantaBase extends SavedData {
 
     public static @Nullable BlockPos getPos(ServerLevel level) {
         return get(level).pos;
+    }
+
+    public static @Nullable BlockPos getCouch(ServerLevel level) {
+        BlockPos pos = getPos(level);
+        if(pos == null) return null;
+        return pos.offset(12, 0, 34);
     }
 
     public static boolean getFlag(ServerLevel level) {
@@ -93,15 +101,16 @@ public class SantaBase extends SavedData {
             ChunkAccess chunk = level.getChunkSource().getChunk(pos.x, pos.z, ChunkStatus.FULL, true);
             assert chunk != null;
             int h = level.getChunk(pos.x, pos.z+1).getHeight(Heightmap.Types.WORLD_SURFACE, x, z-16);
-            BlockPos pos1 = new BlockPos(x, h, z);
+            BlockPos pos1 = new BlockPos(x, h-20, z);
             base.setPos(pos1);
+            BlockPos struct = pos1.offset(-24,-5,-9);
             sendUpdate(level, pos1);
             Optional<StructureTemplate> template = level.getStructureManager().get(SantaConstants.id("santa_base"));
             if(template.isEmpty()) {
                 SantaConstants.LOGGER.error("Unable to find santa base structure file");
                 return null;
             }
-            template.get().placeInWorld(level, pos1, pos1, new StructurePlaceSettings(), StructureBlockEntity.createRandom(0), 2);
+            template.get().placeInWorld(level, struct, struct, new StructurePlaceSettings().setLiquidSettings(LiquidSettings.IGNORE_WATERLOGGING), StructureBlockEntity.createRandom(0), 2);
             SantaConstants.LOGGER.info("Santa Logistics has placed correctly the structure");
             return pos1;
         }
@@ -156,7 +165,7 @@ public class SantaBase extends SavedData {
     }
 
     private static boolean isSnowy(Holder<Biome> biome) {
-        return biome.is(Tags.Biomes.IS_SNOWY);
+        return biome.is(Tags.Biomes.IS_SNOWY_PLAINS) || biome.is(Biomes.SNOWY_TAIGA);
     }
 
     @Override

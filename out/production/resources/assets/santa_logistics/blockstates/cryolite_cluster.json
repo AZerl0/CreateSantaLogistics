@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "santa_logistics:block/cryolite_cluster",
+      "x": 180
+    },
+    "facing=east": {
+      "model": "santa_logistics:block/cryolite_cluster",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north": {
+      "model": "santa_logistics:block/cryolite_cluster",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "santa_logistics:block/cryolite_cluster",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up": {
+      "model": "santa_logistics:block/cryolite_cluster"
+    },
+    "facing=west": {
+      "model": "santa_logistics:block/cryolite_cluster",
+      "x": 90,
+      "y": 270
+    }
+  }
+}

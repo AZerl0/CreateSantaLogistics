@@ -1,0 +1,19 @@
+{
+  "type": "create:crushing",
+  "ingredients": [
+    {
+      "item": "santa_logistics:cryolite_block"
+    }
+  ],
+  "processing_time": 150,
+  "results": [
+    {
+      "count": 3,
+      "id": "santa_logistics:cryolite_shard"
+    },
+    {
+      "chance": 0.5,
+      "id": "santa_logistics:cryolite_shard"
+    }
+  ]
+}

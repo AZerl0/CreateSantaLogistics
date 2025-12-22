@@ -51,11 +51,19 @@ public class SantaBlockStateProvider extends BlockStateProvider {
                                 .build();
                     }
 
+                    int rot = switch (index) {
+                        case 31, 32 -> 0;
+                        case 27, 28 -> 90;
+                        case 33, 34 -> 180;
+                        default -> 270;
+                    };
                     return ConfiguredModel.builder()
                             .modelFile(existing("block/frostburn_engine/tube"))
+                            .rotationY((180 + rot) % 360)
                             .build();
                 });
         simpleCubeAll(SantaBlocks.SHIELDED_STONE.get());
+        MultiPartAPIStateHelper.facingMultipartBlock(this, SantaBlocks.SCHEDULE_CLOCK.get());
     }
 
     private void simpleCubeAll(Block block) {

@@ -6,11 +6,9 @@ import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.block.IBE;
 import net.liukrast.multipart.block.AbstractMultipartBlock;
 import net.liukrast.santa.DeployerGoggleInformation;
-import net.liukrast.santa.client.gui.screens.FrostburnEngineScreen;
 import net.liukrast.santa.mixin.KineticBlockEntityAccessor;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -22,9 +20,12 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -36,7 +37,7 @@ import java.util.List;
 
 @SuppressWarnings("deprecation")
 @NonnullDefault
-public class FrostburnEngineBlock extends AbstractMultipartBlock implements IRotate, IBE<FrostburnEngineBlockEntity>, DeployerGoggleInformation {
+public class FrostburnEngineBlock extends AbstractMultipartBlock implements IRotate, IBE<FrostburnEngineBlockEntity>, DeployerGoggleInformation, LiquidBlockContainer {
 
     private static final VoxelShape TUBE = Shapes.or(
             box(3, 4, 3, 13, 16, 13)
@@ -209,14 +210,26 @@ public class FrostburnEngineBlock extends AbstractMultipartBlock implements IRot
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if(state.getValue(getPartsProperty()) == 10) return InteractionResult.PASS;
-        var statePos = getPositions().get(state.getValue(getPartsProperty()));
+        /*int index = state.getValue(getPartsProperty());
+        if(index == 10 || index > 26) return InteractionResult.PASS;
+        var statePos = getPositions().get(index);
         var direction = getDirection(state);
         BlockPos origin = getOrigin(pos, statePos, direction);
         BlockPos ten = getPositions().get(10);
         if(!level.isClientSide) return InteractionResult.SUCCESS;
         if(!(level.getBlockEntity(getRelative(origin, ten, direction)) instanceof FrostburnEngineBlockEntity be)) return InteractionResult.PASS;
         Minecraft.getInstance().setScreen(new FrostburnEngineScreen(be.overclock));
-        return InteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;*/
+        return super.useWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    @Override
+    public boolean canPlaceLiquid(@Nullable Player player, BlockGetter blockGetter, BlockPos blockPos, BlockState blockState, Fluid fluid) {
+        return false;
+    }
+
+    @Override
+    public boolean placeLiquid(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
+        return false;
     }
 }

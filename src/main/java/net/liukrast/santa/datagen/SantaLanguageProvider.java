@@ -6,7 +6,11 @@ import net.liukrast.santa.registry.SantaBlocks;
 import net.liukrast.santa.registry.SantaItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+
+import java.awt.event.ItemListener;
 
 public class SantaLanguageProvider extends LanguageProvider {
     public SantaLanguageProvider(PackOutput output) {
@@ -29,9 +33,13 @@ public class SantaLanguageProvider extends LanguageProvider {
         addReplaced("itemGroup.%s", "Create: Santa Logistics");
 
         /* ITEM DESCRIPTIONS */
-        add(SantaBlocks.PRIME_CRYOLITE_BLOCK.get(), "Creative-only infinite cryolite generator");
-        add(SantaItems.FROSTBURN_CORE.get(), "The power of the sun, in the palm of my hand...");
-        add(SantaBlocks.SCHEDULE_CLOCK.get(), "Displays santa claus's schedule time");
+        addShiftSummary(SantaBlocks.PRIME_CRYOLITE_BLOCK.get(), "Creative-only infinite cryolite generator");
+        addShiftSummary(SantaItems.FROSTBURN_CORE.get(), "The power of the sun, in the palm of my hand...");
+        addShiftSummary(SantaBlocks.SCHEDULE_CLOCK.get(), "Displays santa claus's schedule time");
+        addShiftSummary(SantaBlocks.SHIELDED_STONE.get(), "A bedrock-like stone that protects the entire santa's base");
+        for(var pack : SantaItems.PRESENTS) {
+            addShiftSummary(pack.get(), "Similar to a normal cardboard package, but only the receiver can open it, and content is hidden");
+        }
 
         /* CONTAINERS */
         addReplaced("container.%s.robo_elf.trust_gain", "How much trust you will gain");
@@ -39,6 +47,14 @@ public class SantaLanguageProvider extends LanguageProvider {
         addReplaced("container.%s.robo_elf.process_time", "How many seconds it will take to craft this item");
         addReplaced("container.%s.robo_elf.trust_level", "Your current trust level");
         addReplaced("container.%s.santa", "Santa's Sleigh");
+        addReplaced("container.%s.robo_elf.enqueue", "Enqueue items");
+        addReplaced("container.%s.robo_elf.queue_full", "This robo elf's queue is full");
+        addReplaced("container.%s.robo_elf.not_enough_items", "You do not own enough items for this exchange");
+        addReplaced("container.%s.robo_elf.no_recipe_selected", "No recipe selected");
+        addReplaced("container.%s.robo_elf.scroll_to_change_amount", "Scroll to change amount");
+
+        /* SCROLL VALUE LABELS */
+        addPrefixed("kinetics.frostburn_engine.overclock", "Choose an overclock amount");
 
         /* GOGGLE TOOLTIPS */
         addPrefixed("gui.santa_claus.info_header", "Santa Claus Information:");
@@ -90,6 +106,90 @@ public class SantaLanguageProvider extends LanguageProvider {
 
         add("chat.santa_dock.available", "Santa dock is connected and active");
         add("chat.santa_dock.to_be_removed", "Santa dock will be deleted at the end of the night");
+
+        addReplaced("painting.%s.snowy_night.title", "Snowy Night");
+        addReplaced("painting.%s.snowy_night.author", "LiukRast");
+
+        createPonder(SantaBlocks.SANTA_DOCK.asItem(),
+                "Exchanging global packages with the santa dock",
+                "Santa docks allow global package exchanges",
+                "Right click to open the menu, and setup an address...",
+                "...if everything went correctly, your dock will say it's connected through the google tooltip...",
+                "...and now your address is global and unique.",
+                "During the night, something special will happen...",
+                "...and §6Santa§r will deliver packages.",
+                "Otherwise, if you want to send a package, put it in your santa dock...",
+                "...and don't forget your receiver's address!"
+        );
+
+        createPonder(SantaBlocks.FROSTBURN_ENGINE.asItem(),
+                "Generating extreme power through the frostburn engine",
+                "Frostburn engine is a very powerful stress generator, with massive amount of SU produced",
+                "...and it comes for free!",
+                "But there's a catch...",
+                "the more you §aoverclock §rit (through the right-click menu), §athe §amore §aSU §ait §aproduces§r...",
+                "...and the more it gets unstable.",
+                "If temperature reaches a §ccritical §cpoint§r, or it's §cbroken §cwhen §ctemperature §cis §ctoo §chigh§r...",
+                "...the entire engine will §ccollapse §cand §cexplode§r.",
+                "§6Santa§r, has luckily found a solution for us...",
+                "...§bcryolite §ris a very cold and extremely functional liquid to lower your engine's temperature!"
+                );
+
+        createPonder("robo_elf",
+                "Interacting with Robo-ELF",
+                "Robo elves can be found in many cold biomes...",
+                "...and will be sleeping oxidized.",
+                "You can use an axe to wax them till they are §aclean§r.",
+                "Every elf has a Charge which will decrease as he does more activities and gets §6stressed§r.",
+                "You can manually charge a robo-elf by holding shift+right-click",
+                "When their charge gets lower, they will automatically try to find a charge station, if possible, and auto-charge"
+        );
+
+        createPonder("robo_elf_packaging",
+                "Creating presents with a Robo-ELF",
+                "Robo elves can collect packages dropped on ground...",
+                "...and turn them into colorful presents!",
+                "Presents can only be opened by a player who's name matches the address, and will hide the content",
+                "Be careful, crafting too many presents may stress the robo-elf"
+        );
+
+        createPonder("robo_elf_trust",
+                "Gaining trust through the robo-ELF",
+                "Robo elves are very important to gain §6santa's trust§r...",
+                "...by interacting with a robo-elf, you can see a menu opens up.",
+                "You can exchange materials with a robo elf to unlock several special items, and gain trust...",
+                "...every item requested, will be queued, with a max of 18 items.",
+                "Once the robo-elf is done crafting, he will personally hold your item in his inventory, and try to find you in order to deliver it!",
+                "Don't mess with the robo-elf, as it will lower your trust"
+        );
+
+        createPonder("santa_claus",
+                "Interacting with Santa Claus",
+                "Santa claus is a very busy hard-worker...",
+                "...he has a precise schedule, which can be seen on a §6Schedule §6clock§r.",
+                "After sleeping, there is a short period where you can interact with Santa...",
+                "...here is where you will use the §6trust§r you gained.",
+                "Use a google to see what reward you can unlock, them being §cRed§r if your trust is not enough for that reward, and §bAqua§r if you're ready to unlock it",
+                "Finally, give santa various food, as some increase satisfaction for reward A, and some increase it for reward B...",
+                "...once the satisfaction is reached, santa will personally craft your item and hold it in his hands.",
+                "Interact with santa to obtain the item"
+                );
+    }
+
+    private void createPonder(Item item, String header, String... tooltips) {
+        String id = BuiltInRegistries.ITEM.getKey(item).getPath();
+        createPonder(id, header, tooltips);
+    }
+
+    private void createPonder(String id, String header, String... tooltips) {
+        addReplaced("%s.ponder." + id + ".header", header);
+        for(int i = 0; i < tooltips.length; i++) {
+            addReplaced("%s.ponder." + id + ".text_" + (i+1), tooltips[i]);
+        }
+    }
+
+    private void addShiftSummary(ItemLike key, String value) {
+        add(SantaLang.getTooltip(key), value);
     }
 
     private void addReplaced(String key, String value) {

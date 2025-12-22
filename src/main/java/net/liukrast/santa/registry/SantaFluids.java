@@ -7,6 +7,7 @@ import com.tterrag.registrate.util.entry.FluidEntry;
 import net.createmod.catnip.theme.Color;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.mixin.AllFluidsAccessor;
+import net.liukrast.santa.world.level.block.FreezingLiquidBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -28,8 +29,8 @@ public class SantaFluids {
             .properties(b -> b.viscosity(2000).density(1400))
             .fluidProperties(p -> p.levelDecreasePerBlock(2).tickRate(25).slopeFindDistance(3).explosionResistance(300f))
             .source(BaseFlowingFluid.Source::new)
-            .block()
-            .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_BLUE))
+            .block(FreezingLiquidBlock::new)
+            .properties(p -> p.mapColor(MapColor.COLOR_LIGHT_BLUE).lightLevel(bs -> 4))
             .build()
             .bucket()
             .onRegister(AllFluidsAccessor::invokeRegisterFluidDispenseBehavior)

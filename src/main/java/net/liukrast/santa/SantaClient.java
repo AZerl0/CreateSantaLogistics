@@ -1,6 +1,7 @@
 package net.liukrast.santa;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.createmod.ponder.foundation.PonderIndex;
 import net.liukrast.santa.client.renderer.entity.SleighRenderer;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.registry.SantaEntityTypes;
@@ -15,6 +16,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
@@ -33,6 +35,7 @@ public class SantaClient {
         eventBus.addListener(SantaBlockEntityTypes::fmlClientSetup);
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         eventBus.addListener(SantaMenuTypes::registerMenuScreens);
+        eventBus.addListener(this::fMLClientSetup);
     }
 
     @SubscribeEvent
@@ -56,7 +59,14 @@ public class SantaClient {
         var level = Minecraft.getInstance().level;
         assert level != null;
         float smooth = level.getGameRules().getRule(GameRules.RULE_DAYLIGHT).get() ? event.getPartialTick().getGameTimeDeltaPartialTick(true) : 0;
-        SleighRenderer.render(level.dayTime() % 24000 + smooth, poseStack, source);
+        SleighRenderer.renderSleigh(level.dayTime() % 24000 + smooth, poseStack, source);
+        for(int i = 0; i < 3; i++) {
+            SleighRenderer.renderRudolf(level.dayTime() % 24000 + smooth + 200*(i) + 400, poseStack, source, i);
+        }
         poseStack.popPose();
+    }
+
+    private void fMLClientSetup(FMLClientSetupEvent event) {
+        PonderIndex.addPlugin(new SantaPonderPlugin());
     }
 }

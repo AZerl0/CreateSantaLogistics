@@ -7,12 +7,24 @@ import net.liukrast.santa.SantaLang;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
 
-public class ScheduleClockBlock extends AbstractFacingMultipartBlock implements DeployerGoggleInformation {
+@NonnullDefault
+public class ScheduleClockBlock extends AbstractFacingMultipartBlock implements DeployerGoggleInformation, LiquidBlockContainer {
     public ScheduleClockBlock(Properties properties) {
         super(properties);
     }
@@ -57,5 +69,25 @@ public class ScheduleClockBlock extends AbstractFacingMultipartBlock implements 
         int hours = totalMinutes / 60;
         int minutes = totalMinutes % 60;
         return String.format("%02d:%02d", hours, minutes);
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        int index = state.getValue(getPartsProperty());
+        if(index == 0) return Shapes.or(
+                box(0,0,0, 16, 8, 16),
+                box(1, 8, 1, 15, 16, 15)
+        );
+        return box(1, 0, 1, 15, 16, 15);
+    }
+
+    @Override
+    public boolean canPlaceLiquid(@Nullable Player player, BlockGetter blockGetter, BlockPos blockPos, BlockState blockState, Fluid fluid) {
+        return false;
+    }
+
+    @Override
+    public boolean placeLiquid(LevelAccessor levelAccessor, BlockPos blockPos, BlockState blockState, FluidState fluidState) {
+        return false;
     }
 }
