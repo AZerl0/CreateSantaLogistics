@@ -10,8 +10,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
-import java.awt.event.ItemListener;
-
 public class SantaLanguageProvider extends LanguageProvider {
     public SantaLanguageProvider(PackOutput output) {
         super(output, SantaConstants.MOD_ID, "en_us");
@@ -114,7 +112,7 @@ public class SantaLanguageProvider extends LanguageProvider {
                 "Exchanging global packages with the santa dock",
                 "Santa docks allow global package exchanges",
                 "Right click to open the menu, and setup an address...",
-                "...if everything went correctly, your dock will say it's connected through the google tooltip...",
+                "...if everything went correctly, your dock will say it's connected through the goggle tooltip...",
                 "...and now your address is global and unique.",
                 "During the night, something special will happen...",
                 "...and §6Santa§r will deliver packages.",
@@ -169,7 +167,7 @@ public class SantaLanguageProvider extends LanguageProvider {
                 "...he has a precise schedule, which can be seen on a §6Schedule §6clock§r.",
                 "After sleeping, there is a short period where you can interact with Santa...",
                 "...here is where you will use the §6trust§r you gained.",
-                "Use a google to see what reward you can unlock, them being §cRed§r if your trust is not enough for that reward, and §bAqua§r if you're ready to unlock it",
+                "Use a pair of goggles to see what reward you can unlock, them being §cRed§r if your trust is not enough for that reward, and §bAqua§r if you're ready to unlock it",
                 "Finally, give santa various food, as some increase satisfaction for reward A, and some increase it for reward B...",
                 "...once the satisfaction is reached, santa will personally craft your item and hold it in his hands.",
                 "Interact with santa to obtain the item"

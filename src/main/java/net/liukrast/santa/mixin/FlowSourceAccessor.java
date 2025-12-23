@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 /**
  * May be replaced with a deployer API feature
  * */
-@Deprecated(forRemoval = true)
 @Mixin(FlowSource.class)
 public interface FlowSourceAccessor {
 

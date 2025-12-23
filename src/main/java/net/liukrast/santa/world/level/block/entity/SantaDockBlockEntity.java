@@ -1,6 +1,5 @@
 package net.liukrast.santa.world.level.block.entity;
 
-import com.simibubi.create.AllParticleTypes;
 import com.simibubi.create.AllSoundEvents;
 import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
 import com.simibubi.create.content.logistics.packagerLink.WiFiParticle;
@@ -197,6 +196,7 @@ public class SantaDockBlockEntity extends BaseContainerBlockEntity implements IH
     public void playEffect() {
         var pos = this.worldPosition;
         AllSoundEvents.STOCK_LINK.playAt(level, worldPosition, 1.0f, 1.0f, false);
+        assert level != null;
         level.addParticle(new WiFiParticle.Data(), pos.getX(), pos.getY()+0.75f, pos.getZ()+0.5f, 1, 1, 1);
     }
 }

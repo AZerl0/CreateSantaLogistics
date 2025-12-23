@@ -6,7 +6,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.simibubi.create.content.fluids.pump.PumpBlockEntity;
 import net.createmod.catnip.math.BlockFace;
 import net.liukrast.santa.SantaConstants;
-import net.liukrast.santa.registry.SantaBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;

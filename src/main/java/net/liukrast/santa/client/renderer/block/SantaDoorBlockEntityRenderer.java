@@ -9,18 +9,12 @@ import net.liukrast.santa.client.model.SantaVaultDoorModel;
 import net.liukrast.santa.registry.SantaBlocks;
 import net.liukrast.santa.world.level.block.SantaDoorBlock;
 import net.liukrast.santa.world.level.block.entity.SantaDoorBlockEntity;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.Map;

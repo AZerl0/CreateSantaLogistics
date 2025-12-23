@@ -3,10 +3,10 @@ package net.liukrast.santa.registry;
 import net.liukrast.santa.SantaConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import net.minecraft.world.entity.ai.attributes.Attribute;
 
 public class SantaAttributes {
     private SantaAttributes() {}

@@ -1,7 +1,6 @@
 package net.liukrast.santa.network.protocol.game;
 
 import net.liukrast.santa.SantaConstants;
-import net.liukrast.santa.client.gui.screens.RoboElfScreen;
 import net.liukrast.santa.world.entity.RoboElf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

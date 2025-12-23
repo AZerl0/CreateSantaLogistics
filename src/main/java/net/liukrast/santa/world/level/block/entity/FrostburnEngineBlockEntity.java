@@ -12,7 +12,6 @@ import net.liukrast.santa.registry.SantaFluids;
 import net.liukrast.santa.world.level.block.entity.behaviour.OverclockScrollValueBehaviour;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,7 +19,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -141,12 +139,14 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
     public void tick() {
         super.tick();
         if(!creative) temperature = Mth.clamp(temperature + overclock.value, 0, MAX_TEMPERATURE);
+        assert level != null;
         if(temperature == MAX_TEMPERATURE && !level.isClientSide) explode();
         sendData();
     }
 
     public void explode() {
         Vec3 pos = getBlockPos().getCenter();
+        assert level != null;
         this.level.explode(null, new DamageSource(level.damageSources().damageTypes.getHolderOrThrow(DamageTypes.EXPLOSION), pos),
                 null, pos,
                 40, true, Level.ExplosionInteraction.BLOCK

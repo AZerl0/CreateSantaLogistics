@@ -7,8 +7,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumSet;
-
 public class RoboElfCollectPackageGoal extends MeleeAttackGoal {
     public RoboElfCollectPackageGoal(RoboElf mob, double speedModifier, boolean followingTargetEvenIfNotSeen) {
         super(mob, speedModifier, followingTargetEvenIfNotSeen);

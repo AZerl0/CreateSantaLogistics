@@ -1,12 +1,9 @@
 package net.liukrast.santa;
 
-import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
-import net.createmod.ponder.api.element.TextElementBuilder;
 import net.createmod.ponder.api.registration.PonderPlugin;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
 import net.createmod.ponder.api.scene.SceneBuilder;
-import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.liukrast.santa.datagen.SantaPonderTagProvider;
 import net.liukrast.santa.ponder.scenes.FrostburnEngineScene;
 import net.liukrast.santa.ponder.scenes.RoboElfScene;
@@ -14,15 +11,11 @@ import net.liukrast.santa.ponder.scenes.SantaClausPonderScene;
 import net.liukrast.santa.ponder.scenes.SantaDockScene;
 import net.liukrast.santa.registry.SantaBlocks;
 import net.liukrast.santa.registry.SantaItems;
-import net.liukrast.santa.world.level.block.FrostburnEngineBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.lwjgl.system.NonnullDefault;
-
-import java.util.function.Consumer;
 
 @NonnullDefault
 public class SantaPonderPlugin implements PonderPlugin {

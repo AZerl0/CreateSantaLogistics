@@ -14,11 +14,12 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
+import org.lwjgl.system.NonnullDefault;
 
 import java.util.concurrent.CompletableFuture;
 
+@NonnullDefault
 public class SantaRecipeProvider extends RecipeProvider implements IConditionBuilder {
     public SantaRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
         super(output, registries);
@@ -43,7 +44,7 @@ public class SantaRecipeProvider extends RecipeProvider implements IConditionBui
                 .unlockedBy("has_cryolite_shard", has(SantaItems.CRYOLITE_SHARD)).save(recipeOutput);
     }
 
-    private static TagKey<Item> itemTag(String value) {
+    private static TagKey<Item> itemTag(@SuppressWarnings("SameParameterValue") String value) {
         return itemTag(ResourceLocation.parse(value));
     }
 

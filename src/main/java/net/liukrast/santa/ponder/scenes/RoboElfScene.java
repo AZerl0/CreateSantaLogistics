@@ -2,11 +2,8 @@ package net.liukrast.santa.ponder.scenes;
 
 import com.simibubi.create.AllEntityTypes;
 import com.simibubi.create.content.logistics.box.PackageEntity;
-import com.simibubi.create.content.logistics.box.PackageItem;
 import com.simibubi.create.content.logistics.box.PackageStyles;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
-import net.createmod.ponder.api.element.ElementLink;
-import net.createmod.ponder.api.element.EntityElement;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.liukrast.santa.SantaPonderPlugin;
@@ -15,15 +12,13 @@ import net.liukrast.santa.registry.SantaItems;
 import net.liukrast.santa.world.entity.RoboElf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 public class RoboElfScene {
     public static void roboElf(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        var entity = common("robo_elf", scene, util);
+        common("robo_elf", scene, util);
 
         BlockPos pos = new BlockPos(1,1,1);
         SantaPonderPlugin.displayText(builder, pos, 60, true);
@@ -39,7 +34,7 @@ public class RoboElfScene {
 
     public static void roboElfPackaging(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        var entity = common("robo_elf_packaging", scene, util);
+        common("robo_elf_packaging", scene, util);
 
         var e1 = scene.world().createEntity(w -> {
             PackageEntity pack = AllEntityTypes.PACKAGE.create(w);
@@ -90,7 +85,7 @@ public class RoboElfScene {
 
     public static void roboElfTrust(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        var entity = common("robo_elf_trust", scene, util);
+        common("robo_elf_trust", scene, util);
         BlockPos pos = new BlockPos(1,1,1);
         SantaPonderPlugin.displayText(builder, pos, 80, true);
         SantaPonderPlugin.displayText(builder, pos, 60, false);
@@ -100,7 +95,7 @@ public class RoboElfScene {
         SantaPonderPlugin.displayText(builder, pos, 100, false);
     }
 
-    private static ElementLink<EntityElement> common(String id, CreateSceneBuilder scene, SceneBuildingUtil util) {
+    private static void common(String id, CreateSceneBuilder scene, SceneBuildingUtil util) {
         scene.title(id, "");
         scene.configureBasePlate(0, 0, 3);
         scene.scaleSceneView(0.825f);
@@ -108,9 +103,9 @@ public class RoboElfScene {
         scene.world().showIndependentSection(util.select().fromTo(3, 0, 0, 0, 0, 3), Direction.UP);
         scene.idle(10);
 
-        return scene.world().createEntity(w -> {
+        scene.world().createEntity(w -> {
             RoboElf elf = SantaEntityTypes.ROBO_ELF.get().create(w);
-            Vec3 p = util.vector().topOf(util.grid().at(1,0,1));
+            Vec3 p = util.vector().topOf(util.grid().at(1, 0, 1));
             assert elf != null;
             elf.setPos(p.x, p.y, p.z);
             elf.xo = p.x;

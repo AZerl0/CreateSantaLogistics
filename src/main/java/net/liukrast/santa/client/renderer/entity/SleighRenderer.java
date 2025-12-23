@@ -6,26 +6,18 @@ import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.client.model.CogDrivenCourierModel;
 import net.liukrast.santa.client.model.RudolfModel;
 import net.liukrast.santa.client.model.SantaClausModel;
-import net.liukrast.santa.world.entity.SantaClaus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec2;
-import org.apache.logging.log4j.util.TriConsumer;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @NonnullDefault
@@ -109,9 +101,10 @@ public class SleighRenderer {
     public static void renderSleigh(float smoothDayTime, PoseStack poseStack, MultiBufferSource bufferSource) {
         poseStack.pushPose();
         render(smoothDayTime, poseStack, (pitch, yaw, walk, day, pos) -> {
-            if(day != DISAPPEARED.get(0)) {
+            if(day != DISAPPEARED.getFirst()) {
                 var level = Minecraft.getInstance().level;
                 DISAPPEARED.set(0, day);
+                assert level != null;
                 for(int i = 0; i < 100; i++) level.addParticle(ParticleTypes.HAPPY_VILLAGER, pos.getX()-1 + level.getRandom().nextFloat()*5, pos.getY()+1, pos.getZ()-1 + level.getRandom().nextFloat()*5, 1, 2, 1);
             }
             if(day) return;
@@ -141,6 +134,7 @@ public class SleighRenderer {
             if(day != DISAPPEARED.get(index+1)) {
                 var level = Minecraft.getInstance().level;
                 DISAPPEARED.set(index+1, day);
+                assert level != null;
                 for(int i = 0; i < 40; i++) level.addParticle(ParticleTypes.HAPPY_VILLAGER, pos.getX()-1 + level.getRandom().nextFloat()*3, pos.getY()+1, pos.getZ()-1 + level.getRandom().nextFloat()*3, 1, 2, 1);
             }
             if(day) return;

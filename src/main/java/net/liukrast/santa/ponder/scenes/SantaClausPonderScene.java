@@ -6,7 +6,6 @@ import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.liukrast.santa.SantaPonderPlugin;
 import net.liukrast.santa.registry.SantaEntityTypes;
 import net.liukrast.santa.registry.SantaItems;
-import net.liukrast.santa.world.entity.RoboElf;
 import net.liukrast.santa.world.entity.SantaClaus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
