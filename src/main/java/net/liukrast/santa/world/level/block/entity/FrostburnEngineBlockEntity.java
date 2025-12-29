@@ -5,6 +5,7 @@ import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour
 import com.simibubi.create.foundation.blockEntity.behaviour.CenteredSideValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
 import joptsimple.internal.Strings;
+import net.liukrast.santa.SantaConfig;
 import net.liukrast.santa.SantaLang;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.registry.SantaBlocks;
@@ -34,9 +35,6 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
     @SuppressWarnings("NotNullFieldNotInitialized")
     public ScrollValueBehaviour overclock;
     private boolean creative = false;
-
-    public static final int BREAK_TEMPERATURE = 5000;
-    public static final int MAX_TEMPERATURE = 10000;
 
     private final IFluidHandler handler = new IFluidHandler() {
         @Override
@@ -108,7 +106,7 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
 
     @Override
     public float calculateAddedStressCapacity() {
-        return super.calculateAddedStressCapacity() * overclock.value * 16;
+        return (float) (super.calculateAddedStressCapacity() * overclock.value * SantaConfig.FROSTBURN_MULTIPLIER.getAsDouble());
     }
 
     @Override
@@ -138,9 +136,10 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
     @Override
     public void tick() {
         super.tick();
-        if(!creative) temperature = Mth.clamp(temperature + overclock.value, 0, MAX_TEMPERATURE);
+        int cfgMax = SantaConfig.FROSTBURN_EXPLODE.getAsInt();
+        if(!creative) temperature = (int)Mth.clamp(temperature + overclock.value* SantaConfig.FROSTBURN_TEMPERATURE_INCREASE.getAsDouble(), 0, cfgMax);
         assert level != null;
-        if(temperature == MAX_TEMPERATURE && !level.isClientSide) explode();
+        if(temperature >= cfgMax && !level.isClientSide) explode();
         sendData();
     }
 
@@ -156,15 +155,15 @@ public class FrostburnEngineBlockEntity extends GeneratingKineticBlockEntity {
     @Override
     public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
         super.addToGoggleTooltip(tooltip, isPlayerSneaking);
-
+        int cfgMax = SantaConfig.FROSTBURN_EXPLODE.getAsInt();
         SantaLang.translate("tooltip.overclock").style(ChatFormatting.GRAY).forGoggles(tooltip);
         var color = overclock.value < 256 ? ChatFormatting.GREEN : overclock.value < 512 ? ChatFormatting.YELLOW : overclock.value < 768 ? ChatFormatting.GOLD : ChatFormatting.RED;
         SantaLang.number(overclock.value).add(Component.literal("°")).style(color).add(Component.literal(" ")).add(SantaLang.translateDirect("tooltip.temperature_per_tick").withStyle(ChatFormatting.DARK_GRAY)).forGoggles(tooltip, 1);
         SantaLang.translate("tooltip.temperature").style(ChatFormatting.GRAY).forGoggles(tooltip);
         int bars = 40;
         var builder = SantaLang.builder()
-                .add(bars(temperature*bars/MAX_TEMPERATURE, ChatFormatting.RED))
-                .add(bars(bars - (temperature*bars/MAX_TEMPERATURE), ChatFormatting.GREEN));
+                .add(bars(temperature*bars/cfgMax, ChatFormatting.RED))
+                .add(bars(bars - (temperature*bars/cfgMax), ChatFormatting.GREEN));
         if(isPlayerSneaking)
             builder = builder.add(Component.literal(" (" + temperature + ")").withStyle(ChatFormatting.GRAY));
         builder.forGoggles(tooltip, 1);

@@ -6,6 +6,7 @@ import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
 import com.simibubi.create.foundation.block.IBE;
 import net.liukrast.multipart.block.AbstractMultipartBlock;
 import net.liukrast.santa.DeployerGoggleInformation;
+import net.liukrast.santa.SantaConfig;
 import net.liukrast.santa.mixin.KineticBlockEntityAccessor;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
 import net.liukrast.santa.world.level.block.entity.FrostburnEngineBlockEntity;
@@ -94,7 +95,7 @@ public class FrostburnEngineBlock extends AbstractMultipartBlock implements IRot
         BlockPos ten = getPositions().get(10);
         if(!(level.getBlockEntity(getRelative(origin, ten, direction)) instanceof FrostburnEngineBlockEntity febe))
             return super.playerWillDestroy(level, pos, state, player);
-        if(febe.getTemperature() < FrostburnEngineBlockEntity.BREAK_TEMPERATURE)
+        if(febe.getTemperature() < SantaConfig.FROSTBURN_EXPLODE_ON_BREAK.getAsInt())
             return super.playerWillDestroy(level, pos, state, player);
         febe.explode();
         return super.playerWillDestroy(level, pos, state, player);
