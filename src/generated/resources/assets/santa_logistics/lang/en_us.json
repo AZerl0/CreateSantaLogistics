@@ -142,6 +142,7 @@
   "santa_logistics.ponder.santa_dock.text_6": "...and §6Santa§r will deliver packages.",
   "santa_logistics.ponder.santa_dock.text_7": "Otherwise, if you want to send a package, put it in your santa dock...",
   "santa_logistics.ponder.santa_dock.text_8": "...and don't forget your receiver's address!",
+  "santa_logistics.recipe.robo_elf_trading": "Trading with Robo-Elf",
   "santa_logistics.tooltip.overclock": "Overclock Amount:",
   "santa_logistics.tooltip.temperature": "Temperature:",
   "santa_logistics.tooltip.temperature_per_tick": "per tick"
