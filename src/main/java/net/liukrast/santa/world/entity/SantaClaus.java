@@ -279,6 +279,7 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
         IDLE,
         CURIOUS,
         ANGRY,
+        LOOTING,
         EATING,
         SLEEPING
     }

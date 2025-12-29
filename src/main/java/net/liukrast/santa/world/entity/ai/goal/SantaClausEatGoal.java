@@ -22,6 +22,7 @@ public class SantaClausEatGoal extends Goal {
     private int cooldown;
     private final SantaClaus santa;
     private boolean canContinueUse;
+    private boolean isFood;
 
     public SantaClausEatGoal(SantaClaus santa) {
         this.santa = santa;
@@ -47,7 +48,15 @@ public class SantaClausEatGoal extends Goal {
 
     @Override
     public void start() {
-        santa.setAnimationState(SantaClaus.State.EATING);
+        var stack = santa.getMainHandItem();
+        var owner = santa.getLastItemOwner();
+        if(owner != null) {
+            Player player = santa.level().getPlayerByUUID(owner);
+            if(player != null && santa.level().getRecipeManager().getRecipeFor(SantaRecipeTypes.SANTA_CLAUS_TRADING.get(), new SantaClausTradingRecipeInput(stack, player.getData(SantaAttachmentTypes.TRUST)), santa.level()).map(rh -> rh.value().food()).orElse(false)) {
+                isFood = true;
+            }
+        }
+        santa.setAnimationState(isFood ? SantaClaus.State.EATING : SantaClaus.State.LOOTING);
         cooldown = 20;
         canContinueUse = true;
     }
@@ -55,12 +64,14 @@ public class SantaClausEatGoal extends Goal {
     @Override
     public void stop() {
         santa.setAnimationState(SantaClaus.State.IDLE);
+        isFood = false;
     }
 
     @Override
     public void tick() {
         if(cooldown > 0) {
             cooldown--;
+            if(!isFood) return;
             Vec3 m = VecHelper.offsetRandomly(new Vec3(0, 0.25f, 0), santa.getRandom(), .125f);
             ((ServerLevel)santa.level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, santa.getMainHandItem()), santa.getX(), santa.getY() + 2, santa.getZ(), 10, m.x, m.y, m.z, 0.1);
         } else {
