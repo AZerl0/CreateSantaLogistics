@@ -2,7 +2,6 @@ package net.liukrast.santa.world.entity.ai.goal;
 
 import net.createmod.catnip.math.VecHelper;
 import net.liukrast.santa.world.entity.RoboElf;
-import net.liukrast.santa.world.entity.TradeInfo;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -16,7 +15,7 @@ import java.util.UUID;
 public class RoboElfCraftGoal extends Goal {
     protected final RoboElf mob;
     private int cooldown = 0;
-    private TradeInfo trade;
+    private RoboElf.QueueEntry trade;
     private UUID owner;
 
     public RoboElfCraftGoal(RoboElf mob) {
@@ -41,7 +40,7 @@ public class RoboElfCraftGoal extends Goal {
         assert pair != null;
         owner = pair.getFirst();
         trade = pair.getSecond();
-        cooldown = trade.getProcessTime()*10;
+        cooldown = trade.processTime()*10;
     }
 
     @Override
@@ -49,11 +48,11 @@ public class RoboElfCraftGoal extends Goal {
         if(cooldown > 0) {
             cooldown--;
             Vec3 m = VecHelper.offsetRandomly(new Vec3(0, 0.25f, 0), mob.level().random, .125f);
-            ((ServerLevel)mob.level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, trade.getResult()), mob.getX(), mob.getY(), mob.getZ(), 10, m.x, m.y, m.z, 0.1);
+            ((ServerLevel)mob.level()).sendParticles(new ItemParticleOption(ParticleTypes.ITEM, trade.result()), mob.getX(), mob.getY(), mob.getZ(), 10, m.x, m.y, m.z, 0.1);
         } else if(cooldown == 0) {
-            ItemStack stack = trade.getResult().copy();
+            ItemStack stack = trade.result().copy();
             mob.setCrafted(owner, stack);
-            mob.extractCharge(trade.getEnergy());
+            mob.extractCharge(trade.energy());
             mob.getQueue().poll();
             mob.reloadQueueStats();
             this.mob.stress(2);

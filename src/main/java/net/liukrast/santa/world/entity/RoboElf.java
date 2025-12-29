@@ -1,6 +1,8 @@
 package net.liukrast.santa.world.entity;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simibubi.create.AllFluids;
 import com.simibubi.create.content.kinetics.base.IRotate;
 import com.simibubi.create.content.logistics.box.PackageEntity;
@@ -10,14 +12,13 @@ import net.createmod.catnip.lang.LangBuilder;
 import net.createmod.catnip.math.VecHelper;
 import net.liukrast.santa.DeployerGoggleInformation;
 import net.liukrast.santa.SantaConfig;
+import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.SantaLang;
-import net.liukrast.santa.registry.SantaAttachmentTypes;
-import net.liukrast.santa.registry.SantaAttributes;
-import net.liukrast.santa.registry.SantaBlocks;
-import net.liukrast.santa.registry.SantaItems;
+import net.liukrast.santa.registry.*;
 import net.liukrast.santa.world.entity.ai.goal.*;
 import net.liukrast.santa.world.inventory.RoboElfMenu;
 import net.liukrast.santa.world.item.PresentItem;
+import net.liukrast.santa.world.item.crafting.RoboElfTradingRecipe;
 import net.liukrast.santa.world.level.block.ElfChargeStationBlock;
 import net.liukrast.santa.world.level.block.entity.ElfChargeStationBlockEntity;
 import net.minecraft.ChatFormatting;
@@ -52,13 +53,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
@@ -73,20 +74,20 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
     private static final EntityDataAccessor<Integer> QUEUE_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> CRAFTED_ID = SynchedEntityData.defineId(RoboElf.class, EntityDataSerializers.INT);
     public static final int MAX_QUEUE = 18;
-    private static final List<TradeInfo> TRADES = List.of(
-            new TradeInfo(new ItemCost(Items.SNOWBALL, 4), Items.SNOW_BLOCK.getDefaultInstance(), 10, 10, 10),
-            new TradeInfo(new ItemCost(Items.SPRUCE_LOG, 4), new ItemCost(Items.SPRUCE_LEAVES, 8), new ItemCost(Items.GOLD_INGOT), SantaBlocks.CHRISTMAS_TREE.toStack(), 100, 40, 40),
-            new TradeInfo(new ItemCost(Items.SUGAR), new ItemCost(Items.RED_DYE), SantaItems.CANDY_CANE.toStack(), 20, 20, 10),
-            new TradeInfo(new ItemCost(Items.WHEAT, 2), new ItemCost(Items.COCOA_BEANS), new ItemStack(Items.COOKIE, 8), 10, 10, 10),
-            new TradeInfo(new ItemCost(Items.WHEAT, 2), new ItemCost(Items.COCOA_BEANS), new ItemStack(Items.COOKIE, 8), 10, 10, 10),
-            new TradeInfo(new ItemCost(Items.SUGAR, 4), new ItemCost(Items.COCOA_BEANS, 4), new ItemCost(Items.MILK_BUCKET), AllFluids.CHOCOLATE.getBucket().orElseThrow().getDefaultInstance(), 40, 80, 60),
-            new TradeInfo(new ItemCost(SantaBlocks.BUDDING_CRYOLITE.asItem()), new ItemCost(SantaItems.CRYOLITE_SHARD.asItem()), new ItemStack(SantaBlocks.BUDDING_CRYOLITE), 10, 100, 200)
+
+    private static final List<QueueEntry> DATAFIXER_TRADES = List.of(
+            new QueueEntry(Items.SNOW_BLOCK.getDefaultInstance(), 10, 10),
+            new QueueEntry(SantaBlocks.CHRISTMAS_TREE.toStack(), 40, 40),
+            new QueueEntry(SantaItems.CANDY_CANE.toStack(), 20, 10),
+            new QueueEntry(new ItemStack(Items.COOKIE, 8), 10, 10),
+            new QueueEntry(AllFluids.CHOCOLATE.getBucket().orElseThrow().getDefaultInstance(), 80, 60),
+            new QueueEntry(new ItemStack(SantaBlocks.BUDDING_CRYOLITE), 100, 200)
     );
 
     @Nullable
     private ElfChargeStationBlockEntity chargeStation = null;
     private int unstressCooldown = 0;
-    private final Queue<Pair<UUID, TradeInfo>> queue = new ArrayDeque<>();
+    private final Queue<Pair<UUID, QueueEntry>> queue = new ArrayDeque<>();
     private final Queue<Pair<UUID, ItemStack>> crafted = new ArrayDeque<>();
 
     /* INIT */
@@ -199,7 +200,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         setStress(getStress()+amount);
     }
 
-    public Queue<Pair<UUID, TradeInfo>> getQueue() {
+    public Queue<Pair<UUID, QueueEntry>> getQueue() {
         return queue;
     }
 
@@ -243,12 +244,13 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
                 .result()
                 .ifPresent(nbt -> compound.put("ChargeStation", nbt));
         ListTag queue = new ListTag();
-        for (Pair<UUID, TradeInfo> pair : this.queue) {
+        for (Pair<UUID, QueueEntry> pair : this.queue) {
             CompoundTag entry = new CompoundTag();
-
             entry.putUUID("Owner", pair.getFirst());
-
-            entry.putInt("Id", TRADES.indexOf(pair.getSecond()));
+            entry.put(
+                    "Value",
+                    QueueEntry.CODEC.encodeStart(registryAccess().createSerializationContext(NbtOps.INSTANCE), pair.getSecond()).getOrThrow()
+            );
             queue.add(entry);
         }
         compound.put("TradesQueue", queue);
@@ -286,9 +288,19 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
             CompoundTag entry = (CompoundTag) tag;
 
             UUID uuid = entry.getUUID("Owner");
-            int index = entry.getInt("Id");
-            if(index < 0 || index >= TRADES.size()) continue;
-            TradeInfo info = TRADES.get(index);
+
+            QueueEntry info;
+            //DATA FIXING
+            if(entry.contains("Id", Tag.TAG_INT)) {
+                int index = entry.getInt("Id");
+                if(index < 0 || index >= DATAFIXER_TRADES.size()) continue;
+                info = DATAFIXER_TRADES.get(index);
+            } else {
+                Optional<QueueEntry> opt = QueueEntry.CODEC.parse(registryAccess().createSerializationContext(NbtOps.INSTANCE), entry.getCompound("Entry"))
+                        .resultOrPartial((error) -> SantaConstants.LOGGER.error("Tried to load invalid item: '{}'", error));
+                if(opt.isEmpty()) continue;
+                info = opt.get();
+            }
             queue.offer(Pair.of(uuid, info));
         }
         crafted.clear();
@@ -448,10 +460,7 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
             stack.consume(1, player);
             return InteractionResult.SUCCESS;
         }
-        player.openMenu(this, buf -> {
-            buf.writeCollection(TRADES, ($, info) -> TradeInfo.STREAM_CODEC.encode(buf, info));
-            buf.writeInt(getId());
-        });
+        player.openMenu(this, buf -> buf.writeInt(getId()));
         return InteractionResult.SUCCESS;
     }
 
@@ -462,34 +471,35 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
 
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
-        return new RoboElfMenu(containerId, playerInventory, TRADES, this);
+        return new RoboElfMenu(containerId, playerInventory, this);
     }
 
     public void enqueueWork(int craftIndex, int amount, Player player) {
         if(queue.size()+crafted.size()+amount >= MAX_QUEUE) return;
-        if(craftIndex < 0 || craftIndex >= TRADES.size()) return;
-        TradeInfo info = TRADES.get(craftIndex);
+        var list = level().getRecipeManager().getAllRecipesFor(SantaRecipeTypes.ROBO_ELF_TRADING.get());
+        if(craftIndex < 0 || craftIndex >= list.size()) return;
+        RoboElfTradingRecipe info = list.get(craftIndex).value();
 
         for(int i = 0; i < amount; i++) {
-            if(!extractFromPlayer(info.getIngredients(), player)) continue;
-            queue.offer(Pair.of(player.getUUID(), info));
-            SantaAttachmentTypes.trust(player, info.getTrustGain());
+            if(!extractFromPlayer(info.getInputs(), player)) continue;
+            queue.offer(Pair.of(player.getUUID(), QueueEntry.create(info)));
+            SantaAttachmentTypes.trust(player, info.trustGain());
         }
         reloadQueueStats();
 
 
     }
 
-    private boolean extractFromPlayer(ItemCost[] costs, Player player) {
+    private boolean extractFromPlayer(SizedIngredient[] costs, Player player) {
         Inventory inventory = player.getInventory();
 
         // Verification
-        for (ItemCost cost : costs) {
+        for (SizedIngredient cost : costs) {
             if (cost == null) continue;
             int needed = cost.count();
             for (int i = 0; i < inventory.getContainerSize(); i++) {
                 ItemStack stack = inventory.getItem(i);
-                if (ItemStack.isSameItemSameComponents(stack, cost.itemStack())) {
+                if (cost.ingredient().test(stack)) {
                     needed -= stack.getCount();
                 }
                 if (needed <= 0) break;
@@ -498,12 +508,12 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         }
 
         // Extraction
-        for (ItemCost cost : costs) {
+        for (SizedIngredient cost : costs) {
             if (cost == null) continue;
             int toRemove = cost.count();
             for (int i = 0; i < inventory.getContainerSize(); i++) {
                 ItemStack stack = inventory.getItem(i);
-                if (ItemStack.isSameItemSameComponents(stack, cost.itemStack())) {
+                if (cost.ingredient().test(stack)) {
                     int taken = Math.min(toRemove, stack.getCount());
                     stack.shrink(taken);
                     toRemove -= taken;
@@ -555,6 +565,18 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
                 case WEATHERED -> ChatFormatting.GOLD;
                 case OXIDIZED -> ChatFormatting.RED;
             };
+        }
+    }
+
+    public record QueueEntry(ItemStack result, int energy, int processTime) {
+        public static final Codec<QueueEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                ItemStack.CODEC.fieldOf("result").forGetter(QueueEntry::result),
+                Codec.INT.fieldOf("energy").forGetter(QueueEntry::energy),
+                Codec.INT.fieldOf("processTime").forGetter(QueueEntry::processTime)
+        ).apply(instance, QueueEntry::new));
+
+        public static QueueEntry create(RoboElfTradingRecipe info) {
+            return new QueueEntry(info.result(), info.energy(), info.processTime());
         }
     }
 }

@@ -1,0 +1,22 @@
+{
+  "type": "santa_logistics:robo_elf_trading",
+  "energy": 20,
+  "inputA": {
+    "count": 1,
+    "ingredient": {
+      "item": "minecraft:sugar"
+    }
+  },
+  "inputB": {
+    "count": 1,
+    "ingredient": {
+      "item": "minecraft:red_dye"
+    }
+  },
+  "processTime": 10,
+  "result": {
+    "count": 1,
+    "id": "santa_logistics:candy_cane"
+  },
+  "trustGain": 20
+}

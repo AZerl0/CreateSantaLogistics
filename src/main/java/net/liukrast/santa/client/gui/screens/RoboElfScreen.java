@@ -7,8 +7,8 @@ import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.network.protocol.game.RoboElfCraftPacket;
 import net.liukrast.santa.registry.SantaAttachmentTypes;
 import net.liukrast.santa.world.entity.RoboElf;
-import net.liukrast.santa.world.entity.TradeInfo;
 import net.liukrast.santa.world.inventory.RoboElfMenu;
+import net.liukrast.santa.world.item.crafting.RoboElfTradingRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.trading.ItemCost;
+import net.neoforged.neoforge.common.crafting.SizedIngredient;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
@@ -37,13 +37,12 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
     private int selected = -1;
     private int scroll = 0;
     private int lastTrust = 0;
-    private final int questsPerPage;
     int queueAmount = 1;
     private IconButton confirmButton;
+    int cycle = 0;
     public RoboElfScreen(RoboElfMenu container, Inventory inv, Component title) {
         super(container, inv, title);
-        questsPerPage = 3;
-        imageHeight = questsPerPage*24+42+115;
+        imageHeight = RoboElfMenu.TRADES_PER_PAGE*24+42+115;
         imageWidth = 224;
     }
 
@@ -58,7 +57,7 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
             }
         };
         confirmButton.withCallback(() -> {
-            if(selected < 0 || selected >= menu.trades.size()) return;
+            if(selected < 0 || selected >= menu.getNumRecipes()) return;
             PacketDistributor.sendToServer(new RoboElfCraftPacket(menu.entity.getId(), selected, queueAmount));
         });
         reloadButton();
@@ -78,15 +77,14 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
     }
 
     private State validation() {
-        if(selected < 0 || selected >= menu.trades.size()) return State.N_SELECT;
+        if(selected < 0 || selected >= menu.getNumRecipes()) return State.N_SELECT;
         assert Minecraft.getInstance().player != null;
         var inventory = Minecraft.getInstance().player.getInventory();
-        for (ItemCost cost : menu.trades.get(selected).getIngredients()) {
-            if (cost == null) continue;
+        for (SizedIngredient cost : menu.getRecipes().get(selected).value().getInputs()) {
             int needed = cost.count();
             for (int i = 0; i < inventory.getContainerSize(); i++) {
                 ItemStack stack = inventory.getItem(i);
-                if (ItemStack.isSameItemSameComponents(stack, cost.itemStack())) {
+                if (cost.ingredient().test(stack)) {
                     needed -= stack.getCount();
                 }
                 if (needed <= 0) break;
@@ -107,6 +105,7 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
         int real = mc.player.getData(SantaAttachmentTypes.TRUST);
         int re = Math.round((lastTrust+real)/2f);
         lastTrust = Math.abs(real-re) <= 1 ? real : re;
+        cycle++;
     }
 
     @Override
@@ -127,21 +126,21 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
         renderTextWithTooltip(guiGraphics, trust, st+8, guiTop+24, 0xb59370, TRUST_LEVEL, mouseX, mouseY);
 
         /* TRADES */
-        for(int i = 0; i < questsPerPage; i++) {
+        for(int i = 0; i < RoboElfMenu.TRADES_PER_PAGE; i++) {
             guiGraphics.blit(TEXTURE, guiLeft, guiTop + 42 + 24*i, 0, 42, 224, 24);
-            if(i+scroll >= menu.trades.size()) continue;
-            TradeInfo info = menu.trades.get(i+scroll);
-            var ing = info.getIngredients();
+            if(i+scroll >= menu.getNumRecipes()) continue;
+
+            RoboElfTradingRecipe info = menu.getRecipes().get(i+scroll).value();
+            var ing = info.getInputs();
 
             for(int k = 0; k < ing.length; k++) {
-                ItemCost c = ing[k];
-                if(c == null || c.itemStack().isEmpty()) continue;
-                renderItem(guiGraphics, c.itemStack(),guiLeft + 25 + k*20, guiTop + 45 + 24*i, mouseX, mouseY);
+                SizedIngredient c = ing[k];
+                renderItem(guiGraphics, c.getItems()[0], guiLeft + 25 + k*20, guiTop + 45 + 24*i, mouseX, mouseY);
             }
 
             renderTextWithTooltip(
                     guiGraphics,
-                    "+" + info.getTrustGain() + "☺",
+                    "+" + info.trustGain() + "☺",
                     guiLeft + 85, guiTop + 51 + 24*i,
                     0x603d39, TRUST_GAIN,
                     mouseX, mouseY
@@ -149,7 +148,7 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
 
             renderTextWithTooltip(
                     guiGraphics,
-                    "-" + info.getEnergy() + "⚡",
+                    "-" + info.energy() + "⚡",
                     guiLeft + 85+30, guiTop + 51 + 24*i,
                     0x603d39, ENERGY_USAGE,
                     mouseX, mouseY
@@ -157,22 +156,22 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
 
             renderTextWithTooltip(
                     guiGraphics,
-                    info.getProcessTime() + "⌚",
+                    info.processTime() + "⌚",
                     guiLeft + 85+60, guiTop + 51 + 24*i,
                     0x603d39, PROCESS_TIME,
                     mouseX, mouseY
             );
-            renderItem(guiGraphics, info.getResult(), guiLeft + 181, guiTop + 45 + 24*i, mouseX, mouseY);
+            renderItem(guiGraphics, info.result(), guiLeft + 181, guiTop + 45 + 24*i, mouseX, mouseY);
             if(selected == i+scroll || inBox(mouseX, mouseY, guiLeft, guiTop + 42 + 24*i, 224, 24))
                 guiGraphics.blit(TEXTURE, guiLeft+23, guiTop + 44 + 24*i, 23, 181, 178, 20);
         }
-        guiGraphics.blit(TEXTURE, guiLeft, guiTop+42+24*questsPerPage, 0, 66, 224, 115);
+        guiGraphics.blit(TEXTURE, guiLeft, guiTop+42+24*RoboElfMenu.TRADES_PER_PAGE, 0, 66, 224, 115);
 
-        if(scroll<menu.trades.size()-3) {
-            guiGraphics.blit(TEXTURE, guiLeft+(imageWidth>>1)-12, guiTop+38+questsPerPage*24, 229, 0, 24, 10);
+        if(scroll<menu.getNumRecipes()-3) {
+            guiGraphics.blit(TEXTURE, guiLeft+(imageWidth>>1)-12, guiTop+38+RoboElfMenu.TRADES_PER_PAGE*24, 229, 0, 24, 10);
         }
-        if(selected>=0&&selected<menu.trades.size()) {
-            ItemStack result = menu.trades.get(selected).getResult();
+        if(selected>=0&&selected<menu.getNumRecipes()) {
+            ItemStack result = menu.getRecipes().get(selected).value().result();
             guiGraphics.drawString(font, Component
                             .literal(queueAmount + "x ")
                             .append(result.getHoverName()).withStyle(style -> style.withColor(0xb59370)),
@@ -192,8 +191,8 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
     public boolean mouseClicked(double mouseX, double mouseY, int pButton) {
         int guiLeft = getGuiLeft();
         int guiTop = getGuiTop();
-        for(int i = 0; i < questsPerPage; i++) {
-            if(i+scroll >= menu.trades.size()) continue;
+        for(int i = 0; i < RoboElfMenu.TRADES_PER_PAGE; i++) {
+            if(i+scroll >= menu.getNumRecipes()) continue;
             if(inBox((int) mouseX, (int) mouseY, guiLeft, guiTop + 42 + 24*i, 224, 24)) {
                 selected = i+scroll;
                 reloadButton();
@@ -215,7 +214,7 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
             reloadButton();
             return true;
         }
-        scroll = Math.clamp((int)(scroll-scrollY), 0, menu.trades.size()-3);
+        scroll = Math.clamp((int)(scroll-scrollY), 0, menu.getNumRecipes()-3);
         return true;
     }
 

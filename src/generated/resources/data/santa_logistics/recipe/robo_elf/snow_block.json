@@ -1,0 +1,16 @@
+{
+  "type": "santa_logistics:robo_elf_trading",
+  "energy": 10,
+  "inputA": {
+    "count": 4,
+    "ingredient": {
+      "item": "minecraft:snowball"
+    }
+  },
+  "processTime": 10,
+  "result": {
+    "count": 1,
+    "id": "minecraft:snow_block"
+  },
+  "trustGain": 10
+}

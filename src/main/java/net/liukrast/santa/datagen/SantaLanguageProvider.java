@@ -172,6 +172,9 @@ public class SantaLanguageProvider extends LanguageProvider {
                 "...once the satisfaction is reached, santa will personally craft your item and hold it in his hands.",
                 "Interact with santa to obtain the item"
                 );
+
+        /* RECIPE */
+        add("santa_logistics.recipe.robo_elf_trading", "Trading with Robo-Elf");
     }
 
     private void createPonder(Item item, String header, String... tooltips) {

@@ -1,0 +1,28 @@
+{
+  "type": "santa_logistics:robo_elf_trading",
+  "energy": 80,
+  "inputA": {
+    "count": 4,
+    "ingredient": {
+      "item": "minecraft:sugar"
+    }
+  },
+  "inputB": {
+    "count": 4,
+    "ingredient": {
+      "item": "minecraft:cocoa_beans"
+    }
+  },
+  "inputC": {
+    "count": 1,
+    "ingredient": {
+      "item": "minecraft:milk_bucket"
+    }
+  },
+  "processTime": 60,
+  "result": {
+    "count": 1,
+    "id": "create:chocolate_bucket"
+  },
+  "trustGain": 40
+}

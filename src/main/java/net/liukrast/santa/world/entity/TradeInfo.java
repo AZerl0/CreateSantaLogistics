@@ -9,6 +9,7 @@ import net.minecraft.world.item.trading.ItemCost;
 
 import java.util.Optional;
 
+@Deprecated(forRemoval = true)
 public class TradeInfo {
     private final ItemCost[] ingredients;
     private final ItemStack result;

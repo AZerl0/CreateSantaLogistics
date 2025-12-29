@@ -1,0 +1,22 @@
+{
+  "type": "santa_logistics:robo_elf_trading",
+  "energy": 10,
+  "inputA": {
+    "count": 2,
+    "ingredient": {
+      "item": "minecraft:wheat"
+    }
+  },
+  "inputB": {
+    "count": 1,
+    "ingredient": {
+      "item": "minecraft:cocoa_beans"
+    }
+  },
+  "processTime": 10,
+  "result": {
+    "count": 8,
+    "id": "minecraft:cookie"
+  },
+  "trustGain": 10
+}

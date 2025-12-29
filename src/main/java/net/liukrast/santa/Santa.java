@@ -83,6 +83,8 @@ public class Santa {
         eventBus.register(this);
         container.registerConfig(ModConfig.Type.COMMON, SantaConfig.SPEC);
         SantaFluids.init();
+        SantaRecipeTypes.init(eventBus);
+        SantaRecipeSerializers.init(eventBus);
     }
 
     public void registerCommands(RegisterCommandsEvent event) {
@@ -230,6 +232,7 @@ public class Santa {
 
     public void loadLevel(LevelEvent.Load event) {
         if(event.getLevel().isClientSide()) return;
+        if(!SantaConfig.AUTOMATICALLY_PLACE_SANTA_BASE.get()) return;
         ServerLevel level = (ServerLevel) event.getLevel();
         if(!level.getServer().getWorldData().worldGenOptions().generateStructures()) return;
         if(level.dimension() != ServerLevel.OVERWORLD) return;

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_budding_cryolite": {
+      "conditions": {
+        "items": [
+          {
+            "items": "santa_logistics:budding_cryolite"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "santa_logistics:robo_elf/budding_cryolite"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_budding_cryolite"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "santa_logistics:robo_elf/budding_cryolite"
+    ]
+  }
+}

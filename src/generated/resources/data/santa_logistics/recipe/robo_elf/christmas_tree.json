@@ -1,0 +1,16 @@
+{
+  "type": "santa_logistics:robo_elf_trading",
+  "energy": 40,
+  "inputA": {
+    "count": 4,
+    "ingredient": {
+      "item": "minecraft:spruce_log"
+    }
+  },
+  "processTime": 40,
+  "result": {
+    "count": 1,
+    "id": "santa_logistics:christmas_tree"
+  },
+  "trustGain": 100
+}
