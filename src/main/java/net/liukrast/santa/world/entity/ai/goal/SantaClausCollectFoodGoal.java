@@ -1,11 +1,13 @@
 package net.liukrast.santa.world.entity.ai.goal;
 
-import net.liukrast.santa.SantaConfig;
 import net.liukrast.santa.registry.SantaAttachmentTypes;
+import net.liukrast.santa.registry.SantaRecipeTypes;
 import net.liukrast.santa.world.entity.SantaClaus;
+import net.liukrast.santa.world.item.crafting.SantaClausTradingRecipeInput;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.AABB;
 
 import java.util.EnumSet;
@@ -41,7 +43,8 @@ public class SantaClausCollectFoodGoal extends Goal {
     }
 
     public boolean isValidItem(ItemEntity itemEntity) {
-        return santa.isTypeAFood(itemEntity.getItem()) || santa.isTypeBFood(itemEntity.getItem());
+        var owner = itemEntity.getOwner();
+        return owner != null && owner.isAlive() && owner instanceof Player;
     }
 
     public int getTrust(ItemEntity itemEntity) {
@@ -78,11 +81,26 @@ public class SantaClausCollectFoodGoal extends Goal {
             if(item == null || item.isRemoved()) return;
             List<ItemEntity> list = santa.level().getEntitiesOfClass(ItemEntity.class, getRange(santa.getBoundingBox()), this::isValidItem);
             if(!list.contains(item)) return;
-            boolean a = santa.isTypeAFood(item.getItem());
+            if(item.getOwner() == null) return;
             int trust = getTrust(item);
-            if((a && trust >= SantaConfig.TYPE_A_TRUST.getAsInt()) || (!a && trust >= SantaConfig.TYPE_B_TRUST.getAsInt())) {
+            var input = new SantaClausTradingRecipeInput(item.getItem(), trust);
+            var recipe = santa.level().getRecipeManager().getRecipeFor(SantaRecipeTypes.SANTA_CLAUS_TRADING.get(), input, santa.level());
+            if(recipe.isPresent()) {
+                var t = item.getOwner().getData(SantaAttachmentTypes.SANTA_TRADE_PROGRESS);
+                int count;
+                if(t.isPresent()) {
+                    int remaining = recipe.get().value().input().count() - t.get().progress();
+                    count = Math.min(item.getItem().getCount(), remaining);
+                } else {
+                    count = Math.min(item.getItem().getCount(), recipe.get().value().input().count());
+                }
+
+
                 santa.setAnimationState(SantaClaus.State.CURIOUS);
-                santa.setItemInHand(InteractionHand.MAIN_HAND, item.getItem());
+                santa.setItemInHand(InteractionHand.MAIN_HAND, item.getItem().copyWithCount(count));
+                santa.setLastItemOwner(item.getOwner().getUUID());
+
+                item.setItem(item.getItem().copyWithCount(item.getItem().getCount() - count));
                 item.discard();
                 return;
             }

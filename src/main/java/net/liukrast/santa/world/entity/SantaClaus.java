@@ -1,13 +1,13 @@
 package net.liukrast.santa.world.entity;
 
-import net.createmod.catnip.lang.LangNumberFormat;
 import net.liukrast.santa.DeployerGoggleInformation;
-import net.liukrast.santa.SantaConfig;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.SantaLang;
 import net.liukrast.santa.registry.SantaAttachmentTypes;
-import net.liukrast.santa.registry.SantaTags;
-import net.liukrast.santa.world.entity.ai.goal.*;
+import net.liukrast.santa.world.entity.ai.goal.SantaClausCollectFoodGoal;
+import net.liukrast.santa.world.entity.ai.goal.SantaClausEatGoal;
+import net.liukrast.santa.world.entity.ai.goal.SantaGoToBedGoal;
+import net.liukrast.santa.world.entity.ai.goal.SantaGoToSleighGoal;
 import net.liukrast.santa.world.level.entity.SantaState;
 import net.liukrast.santa.world.level.levelgen.SantaBase;
 import net.minecraft.ChatFormatting;
@@ -21,7 +21,6 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -34,16 +33,18 @@ import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.damagesource.DamageContainer;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @NonnullDefault
 public class SantaClaus extends PathfinderMob implements DeployerGoggleInformation {
@@ -53,8 +54,8 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
     public State lastFoundState = State.IDLE;
 
     private static final EntityDataAccessor<Integer> STATE_ID = SynchedEntityData.defineId(SantaClaus.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> SATISFACTION_A_ID = SynchedEntityData.defineId(SantaClaus.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> SATISFACTION_B_ID = SynchedEntityData.defineId(SantaClaus.class, EntityDataSerializers.INT);
+
+    private static final EntityDataAccessor<Optional<UUID>> LAST_OWNER_ID = SynchedEntityData.defineId(SantaClaus.class, EntityDataSerializers.OPTIONAL_UUID);
 
     public SantaClaus(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -70,7 +71,6 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
     protected void registerGoals() {
         this.goalSelector.addGoal(0, new SantaGoToBedGoal(this, 1));
         this.goalSelector.addGoal(0, new SantaGoToSleighGoal(this, 1));
-        this.goalSelector.addGoal(1, new SantaClausCraftGoal(this));
         this.goalSelector.addGoal(1, new SantaClausEatGoal(this));
         this.goalSelector.addGoal(1, new PanicGoal(this, 1) {
             int cooldown = 0;
@@ -113,8 +113,7 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(STATE_ID, 0);
-        builder.define(SATISFACTION_A_ID, 0);
-        builder.define(SATISFACTION_B_ID, 0);
+        builder.define(LAST_OWNER_ID, Optional.empty());
     }
 
     /* GETTERS AND SETTERS */
@@ -127,62 +126,32 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
         this.entityData.set(STATE_ID, value.ordinal());
     }
 
-    public boolean isTypeAFood(ItemStack stack) {
-        return stack.is(SantaTags.Items.SANTA_FOOD_A);
+    @Nullable
+    public UUID getLastItemOwner() {
+        return entityData.get(LAST_OWNER_ID).orElse(null);
     }
 
-    public boolean isTypeBFood(ItemStack stack) {
-        return stack.is(SantaTags.Items.SANTA_FOOD_B);
-    }
-
-    public void incrementSatisfaction(int increment, boolean typeA) {
-        if(typeA) setSatisfactionA(Mth.clamp(getSatisfactionA()+increment, 0, 100));
-        else setSatisfactionB(Mth.clamp(getSatisfactionB()+increment, 0, 100));
-    }
-
-    public int getSatisfactionA() {
-        return this.entityData.get(SATISFACTION_A_ID);
-    }
-
-    public int getSatisfactionB() {
-        return this.entityData.get(SATISFACTION_B_ID);
-    }
-
-    public void setSatisfactionA(int value) {
-        this.entityData.set(SATISFACTION_A_ID, value);
-    }
-
-    public void setSatisfactionB(int value) {
-        this.entityData.set(SATISFACTION_B_ID, value);
-    }
-
-    public boolean isSatisfiedA() {
-        return getSatisfactionA() == 100;
-    }
-
-    public boolean isSatisfiedB() {
-        return getSatisfactionB() == 100;
+    public void setLastItemOwner(@Nullable UUID uuid) {
+        entityData.set(LAST_OWNER_ID, Optional.ofNullable(uuid));
     }
 
     /* NBT */
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        compound.putIntArray("Satisfaction", new int[]{getSatisfactionA(), getSatisfactionB()});
+        UUID lastItemOwner = getLastItemOwner();
+        if(lastItemOwner != null) {
+            compound.putUUID("LastItemOwner", lastItemOwner);
+        }
     }
 
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        int[] arr = compound.getIntArray("Satisfaction");
-        if(arr.length < 2) {
-            setSatisfactionA(0);
-            setSatisfactionB(0);
-        } else {
-            setSatisfactionA(arr[0]);
-            setSatisfactionB(arr[1]);
-        }
+        if(compound.contains("LastItemOwner")) {
+            setLastItemOwner(compound.getUUID("LastItemOwner"));
+        } else setLastItemOwner(null);
     }
 
     /* LOGIC */
@@ -281,32 +250,28 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
                 .style(ChatFormatting.GRAY)
                 .forGoggles(tooltip);
         assert Minecraft.getInstance().player != null;
-        int tr = Minecraft.getInstance().player.getData(SantaAttachmentTypes.TRUST);
-        boolean a = tr >= SantaConfig.TYPE_A_TRUST.getAsInt();
-        boolean b = tr >= SantaConfig.TYPE_B_TRUST.getAsInt();
-        SantaLang.translate("gui.santa_claus.satisfaction_a")
-                .add(Component.literal(" " + LangNumberFormat.format(getSatisfactionA()))
-                        .withStyle(a ? ChatFormatting.AQUA : ChatFormatting.RED)
-                ).add(Component.literal("/100 ⭐")
-                        .withStyle(a ? ChatFormatting.AQUA : ChatFormatting.RED)
-                )
-                .style(ChatFormatting.DARK_GRAY)
-                .forGoggles(tooltip, 1);
-        SantaLang.translate("gui.santa_claus.satisfaction_b")
-                .add(Component.literal(" " + LangNumberFormat.format(getSatisfactionB()))
-                        .withStyle(b ? ChatFormatting.AQUA : ChatFormatting.RED)
-                ).add(Component.literal("/100 ⭐")
-                        .withStyle(b ? ChatFormatting.AQUA : ChatFormatting.RED)
-                )
-                .style(ChatFormatting.DARK_GRAY)
-                .forGoggles(tooltip, 1);
+        var player = Minecraft.getInstance().player;
+        var extraData = player.getData(SantaAttachmentTypes.SANTA_TRADE_PROGRESS);
+        if(extraData.isPresent()) {
+            var ed = extraData.get();
+            SantaLang.translate("gui.santa_claus.progress", ed.progress(), ed.recipe().input().count())
+                    .style(ChatFormatting.GOLD)
+                    .forGoggles(tooltip, 1);
+            SantaLang.translate("gui.santa_claus.result", ed.recipe().result().getHoverName())
+                    .style(ChatFormatting.LIGHT_PURPLE)
+                    .forGoggles(tooltip, 1);
+        }
+
         return true;
     }
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if(getMainHandItem().isEmpty()) return super.mobInteract(player, hand);
+        var last = getLastItemOwner();
+        if(last == null) return super.mobInteract(player, hand);
         player.getInventory().add(getMainHandItem());
+        if(getMainHandItem().isEmpty()) setLastItemOwner(null);
         return InteractionResult.SUCCESS;
     }
 
@@ -315,8 +280,7 @@ public class SantaClaus extends PathfinderMob implements DeployerGoggleInformati
         CURIOUS,
         ANGRY,
         EATING,
-        SLEEPING,
-        CRAFTING
+        SLEEPING
     }
 
 }

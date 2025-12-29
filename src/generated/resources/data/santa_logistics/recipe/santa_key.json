@@ -1,0 +1,15 @@
+{
+  "type": "santa_logistics:santa_claus_trading",
+  "food": true,
+  "input": {
+    "count": 100,
+    "ingredient": {
+      "tag": "santa_logistics:santa_food_b"
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "santa_logistics:santa_key"
+  },
+  "trustRequired": 10000
+}

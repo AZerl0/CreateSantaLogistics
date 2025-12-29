@@ -65,10 +65,7 @@ public class SantaClausPonderScene {
             ((SantaClaus)e).setAnimationState(SantaClaus.State.EATING);
         });
         scene.idle(40);
-        scene.world().modifyEntity(e1, e -> {
-            ((SantaClaus)e).setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            ((SantaClaus)e).setAnimationState(SantaClaus.State.CRAFTING);
-        });
+        scene.world().modifyEntity(e1, e -> ((SantaClaus)e).setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY));
         SantaPonderPlugin.displayText(builder, pos, 100, false);
 
         scene.idle(10);

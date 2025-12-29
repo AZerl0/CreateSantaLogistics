@@ -49,7 +49,7 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
     @Override
     protected void init() {
         super.init();
-        confirmButton = new IconButton(leftPos+imageWidth-68, topPos+19, AllIcons.I_3x3) {
+        confirmButton = new IconButton(leftPos+imageWidth-74, topPos+19, AllIcons.I_3x3) {
             @Override
             public void setToolTip(Component text) {
                 if(text == null) this.toolTip.clear();
@@ -115,7 +115,9 @@ public class RoboElfScreen extends AbstractSimiContainerScreen<RoboElfMenu> {
         guiGraphics.blit(TEXTURE, guiLeft, guiTop, 0, 0, 224, 42);
 
         /* TRUST */
-        String trust = lastTrust + "☺";
+        String prettyTrust = lastTrust >= 1_000_000 ? lastTrust/1_000_000f + "M"
+                : lastTrust >= 1_000 ? lastTrust/1_000 + "K" : lastTrust + "";
+        String trust = prettyTrust + "☺";
         int tw = font.width(trust);
         int st = guiLeft+imageWidth-24-tw;
         guiGraphics.blit(TEXTURE, st, guiTop+20, 224, 38, 8, 16);

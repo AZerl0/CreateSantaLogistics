@@ -7,21 +7,18 @@ import mezz.jei.api.gui.placement.VerticalAlignment;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.AbstractRecipeCategory;
 import net.liukrast.santa.registry.SantaItems;
 import net.liukrast.santa.world.item.crafting.RoboElfTradingRecipe;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.lwjgl.system.NonnullDefault;
 
-import java.util.Arrays;
 import java.util.List;
 
 @NonnullDefault
-public class RoboElfTradeCategory extends AbstractRecipeCategory<RecipeHolder<RoboElfTradingRecipe>> {
-    public RoboElfTradeCategory(IGuiHelper helper) {
+public class RoboElfTradingCategory extends AbstractRecipeCategory<RecipeHolder<RoboElfTradingRecipe>> {
+    public RoboElfTradingCategory(IGuiHelper helper) {
         super(
                 SantaJEIRecipeTypes.ROBO_ELF_TRADING,
                 Component.translatable("santa_logistics.recipe.robo_elf_trading"),
@@ -33,49 +30,17 @@ public class RoboElfTradeCategory extends AbstractRecipeCategory<RecipeHolder<Ro
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<RoboElfTradingRecipe> holder, IFocusGroup focuses) {
         var recipe = holder.value();
-
         builder.addInputSlot(1, 19)
                 .setStandardSlotBackground()
-                .addIngredients(VanillaTypes.ITEM_STACK, List.of(Arrays.stream(recipe
-                        .inputA()
-                        .getItems())
-                        .map(stack -> {
-                            ItemStack re = stack.copy();
-                            re.setCount(recipe.inputA().count());
-                            return re;
-                        })
-                        .toArray(ItemStack[]::new)
-                ));
-
+                .addIngredients(VanillaTypes.ITEM_STACK, List.of(recipe.inputA().getItems()));
         if(recipe.inputB().isPresent())
             builder.addInputSlot(21, 19)
                     .setStandardSlotBackground()
-                    .addIngredients(VanillaTypes.ITEM_STACK, List.of(Arrays.stream(recipe
-                                    .inputB().get()
-                                    .getItems())
-                            .map(stack -> {
-                                ItemStack re = stack.copy();
-                                re.setCount(recipe.inputB().get().count());
-                                return re;
-                            })
-                            .toArray(ItemStack[]::new)
-                    ));
-
+                    .addIngredients(VanillaTypes.ITEM_STACK, List.of(recipe.inputB().get().getItems()));
         if(recipe.inputC().isPresent())
             builder.addInputSlot(41, 19)
                     .setStandardSlotBackground()
-                    .addIngredients(VanillaTypes.ITEM_STACK, List.of(Arrays.stream(recipe
-                                    .inputC().get()
-                                    .getItems())
-                            .map(stack -> {
-                                ItemStack re = stack.copy();
-                                re.setCount(recipe.inputC().get().count());
-                                return re;
-                            })
-                            .toArray(ItemStack[]::new)
-                    ));
-
-
+                    .addIngredients(VanillaTypes.ITEM_STACK, List.of(recipe.inputC().get().getItems()));
         builder.addOutputSlot(100, 19)
                 .setOutputSlotBackground()
                 .addItemStack(recipe.result());

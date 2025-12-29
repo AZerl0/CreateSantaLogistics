@@ -1,6 +1,7 @@
 package net.liukrast.santa;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.createmod.catnip.config.ui.BaseConfigScreen;
 import net.createmod.ponder.foundation.PonderIndex;
 import net.liukrast.santa.client.renderer.entity.SleighRenderer;
 import net.liukrast.santa.registry.SantaBlockEntityTypes;
@@ -34,6 +35,7 @@ public class SantaClient {
         eventBus.addListener(SantaBlockEntityTypes::registerRenderers);
         eventBus.addListener(SantaBlockEntityTypes::fmlClientSetup);
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        container.registerExtensionPoint(IConfigScreenFactory.class, (modContainer, parent) -> new BaseConfigScreen(parent, modContainer.getModId()));
         eventBus.addListener(SantaMenuTypes::registerMenuScreens);
         eventBus.addListener(this::fMLClientSetup);
     }

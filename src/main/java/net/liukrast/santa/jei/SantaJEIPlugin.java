@@ -4,7 +4,6 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.vanilla.IVanillaRecipeFactory;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -13,6 +12,7 @@ import mezz.jei.api.runtime.IIngredientManager;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.registry.SantaRecipeTypes;
 import net.liukrast.santa.world.item.crafting.RoboElfTradingRecipe;
+import net.liukrast.santa.world.item.crafting.SantaClausTradingRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -26,6 +26,9 @@ public class SantaJEIPlugin implements IModPlugin {
     @SuppressWarnings("FieldCanBeLocal")
     @Nullable
     private IRecipeCategory<RecipeHolder<RoboElfTradingRecipe>> roboElfTradingCategory;
+    @SuppressWarnings("FieldCanBeLocal")
+    @Nullable
+    private IRecipeCategory<RecipeHolder<SantaClausTradingRecipe>> santaClausTradingCategory;
 
     @Override
     public ResourceLocation getPluginUid() {
@@ -36,7 +39,8 @@ public class SantaJEIPlugin implements IModPlugin {
     public void registerCategories(IRecipeCategoryRegistration registration) {
         IJeiHelpers jeiHelpers = registration.getJeiHelpers();
         IGuiHelper guiHelper = jeiHelpers.getGuiHelper();
-        registration.addRecipeCategories(roboElfTradingCategory = new RoboElfTradeCategory(guiHelper));
+        registration.addRecipeCategories(roboElfTradingCategory = new RoboElfTradingCategory(guiHelper));
+        registration.addRecipeCategories(santaClausTradingCategory = new SantaClausTradingCategory(guiHelper));
     }
 
     @Override
@@ -47,5 +51,6 @@ public class SantaJEIPlugin implements IModPlugin {
         assert minecraft.level != null;
         IJeiHelpers jeiHelpers = registration.getJeiHelpers();
         registration.addRecipes(SantaJEIRecipeTypes.ROBO_ELF_TRADING, minecraft.level.getRecipeManager().getAllRecipesFor(SantaRecipeTypes.ROBO_ELF_TRADING.get()));
+        registration.addRecipes(SantaJEIRecipeTypes.SANTA_CLAUS_TRADING, minecraft.level.getRecipeManager().getAllRecipesFor(SantaRecipeTypes.SANTA_CLAUS_TRADING.get()));
     }
 }

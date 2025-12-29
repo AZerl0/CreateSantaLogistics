@@ -57,8 +57,8 @@ public class SantaLanguageProvider extends LanguageProvider {
         /* GOGGLE TOOLTIPS */
         addPrefixed("gui.santa_claus.info_header", "Santa Claus Information:");
         addPrefixed("gui.santa_claus.satisfaction", "Satisfaction level:");
-        addPrefixed("gui.santa_claus.satisfaction_a", "Reward A:");
-        addPrefixed("gui.santa_claus.satisfaction_b", "Reward B:");
+        addPrefixed("gui.santa_claus.progress", "Progress: %s/%s ⭐");
+        addPrefixed("gui.santa_claus.result", "Result: %s");
 
         addPrefixed("tooltip.overclock", "Overclock Amount:");
         addPrefixed("tooltip.temperature", "Temperature:");
@@ -167,14 +167,15 @@ public class SantaLanguageProvider extends LanguageProvider {
                 "...he has a precise schedule, which can be seen on a §6Schedule §6clock§r.",
                 "After sleeping, there is a short period where you can interact with Santa...",
                 "...here is where you will use the §6trust§r you gained.",
-                "Use a pair of goggles to see what reward you can unlock, them being §cRed§r if your trust is not enough for that reward, and §bAqua§r if you're ready to unlock it",
-                "Finally, give santa various food, as some increase satisfaction for reward A, and some increase it for reward B...",
-                "...once the satisfaction is reached, santa will personally craft your item and hold it in his hands.",
+                "By giving santa different items, and if you have enough trust (§aJEI §arecommended§r)...",
+                "...you will start satisfying santa.",
+                "Once the progress is full, and santa finished eating, he will hold your reward in his hands!",
                 "Interact with santa to obtain the item"
                 );
 
         /* RECIPE */
         add("santa_logistics.recipe.robo_elf_trading", "Trading with Robo-Elf");
+        add("santa_logistics.recipe.santa_claus_trading", "Trading with Santa Claus");
     }
 
     private void createPonder(Item item, String header, String... tooltips) {

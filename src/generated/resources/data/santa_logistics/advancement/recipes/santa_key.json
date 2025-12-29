@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_santa_food_b": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#santa_logistics:santa_food_b"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "santa_logistics:santa_key"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_santa_food_b"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "santa_logistics:santa_key"
+    ]
+  }
+}

@@ -6,7 +6,9 @@ import com.simibubi.create.AllItems;
 import net.liukrast.santa.SantaConstants;
 import net.liukrast.santa.registry.SantaBlocks;
 import net.liukrast.santa.registry.SantaItems;
+import net.liukrast.santa.registry.SantaTags;
 import net.liukrast.santa.world.item.crafting.RoboElfTradingRecipeBuilder;
+import net.liukrast.santa.world.item.crafting.SantaClausTradingRecipeBuilder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -74,6 +76,13 @@ public class SantaRecipeProvider extends RecipeProvider implements IConditionBui
                 .add(SizedIngredient.of(SantaItems.CRYOLITE_SHARD.asItem(), 1))
                 .unlockedBy("has_budding_cryolite", has(SantaBlocks.BUDDING_CRYOLITE))
                 .save(recipeOutput, SantaConstants.id("robo_elf/budding_cryolite"));
+
+        new SantaClausTradingRecipeBuilder(SizedIngredient.of(SantaTags.Items.SANTA_FOOD_A, 100), 1000, true, SantaItems.FROSTBURN_CORE.toStack())
+                .unlockedBy("has_santa_food_a", has(SantaTags.Items.SANTA_FOOD_A))
+                .save(recipeOutput);
+        new SantaClausTradingRecipeBuilder(SizedIngredient.of(SantaTags.Items.SANTA_FOOD_B, 100), 10000, true, SantaItems.SANTA_KEY.toStack())
+                .unlockedBy("has_santa_food_b", has(SantaTags.Items.SANTA_FOOD_B))
+                .save(recipeOutput);
     }
 
     private static TagKey<Item> itemTag(@SuppressWarnings("SameParameterValue") String value) {
