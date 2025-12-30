@@ -66,7 +66,19 @@ public class SantaCommands {
                                 )
                         )
                 )
+                .then(Commands.literal("locate_santa_base")
+                        .executes(ctx -> locateSantaBase(ctx.getSource()))
+                )
         );
+    }
+
+    private static int locateSantaBase(CommandSourceStack sourceStack) {
+        BlockPos pos = SantaBase.getPos(sourceStack.getLevel());
+        if(pos == null) {
+            sourceStack.sendFailure(Component.translatable("commands.santa.try_spawn_santa_base.failed"));
+            return 0;
+        }
+        return showLocateResult("commands.santa.try_spawn_santa_base.already_placed", sourceStack, BlockPos.containing(sourceStack.getPosition()), pos, Duration.ZERO, false);
     }
 
     private static int listDocs(CommandSourceStack sourceStack) {
@@ -95,7 +107,7 @@ public class SantaCommands {
         BlockPos pos1 = SantaBase.getPos(level);
         if(pos1 != null) {
             stopwatch.stop();
-            return showLocateResult("commands.santa.try_spawn_santa_base.already_placed", sourceStack, BlockPos.containing(sourceStack.getPosition()), pos1, stopwatch.elapsed());
+            return showLocateResult("commands.santa.try_spawn_santa_base.already_placed", sourceStack, BlockPos.containing(sourceStack.getPosition()), pos1, stopwatch.elapsed(), false);
         }
         BlockPos result = SantaBase.generate(level, pos);
         if(result == null) {
@@ -104,7 +116,7 @@ public class SantaCommands {
             return 0;
         }
         stopwatch.stop();
-        return showLocateResult("commands.santa.try_spawn_santa_base.success", sourceStack, BlockPos.containing(sourceStack.getPosition()), result, stopwatch.elapsed());
+        return showLocateResult("commands.santa.try_spawn_santa_base.success", sourceStack, BlockPos.containing(sourceStack.getPosition()), result, stopwatch.elapsed(), true);
     }
 
     private static int showLocateResult(
@@ -112,7 +124,8 @@ public class SantaCommands {
             CommandSourceStack source,
             BlockPos sourcePosition,
             BlockPos result,
-            Duration duration
+            Duration duration,
+            boolean logging
     ) {
         int i = Mth.floor(dist(sourcePosition.getX(), sourcePosition.getZ(), result.getX(), result.getZ()));
         Component component = ComponentUtils.wrapInSquareBrackets(Component.translatable("chat.coordinates", result.getX(), result.getY(), result.getZ()))
@@ -122,7 +135,7 @@ public class SantaCommands {
                                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("chat.coordinates.tooltip")))
                 );
         source.sendSuccess(() -> Component.translatable(key, component, i), false);
-        SantaConstants.LOGGER.info("Placing Santa's base took {} ms", duration.toMillis());
+        if(logging) SantaConstants.LOGGER.info("Placing Santa's base took {} ms", duration.toMillis());
         return i;
     }
 

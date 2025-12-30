@@ -525,9 +525,9 @@ public class RoboElf extends PathfinderMob implements DeployerGoggleInformation,
         return true;
     }
 
+    // Might want to sort this list by how much trust each user has
     public void setCrafted(UUID owner, ItemStack stack) {
         this.crafted.offer(Pair.of(owner, stack));
-        //TODO: Sort!!
     }
 
     public void reloadQueueStats() {

@@ -26,6 +26,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.SpawnPlacementTypes;
@@ -220,14 +221,15 @@ public class Santa {
         ServerLevel level = (ServerLevel) event.getEntity().level();
         SantaDocks docks = SantaDocks.get(level);
         Map<BlockPos, String> map = docks.blockPosMap();
-
+        if(SantaBase.getFlag(level)) {
+            notifyPlayersError(level);
+        }
         BlockPos origin = SantaBase.getPos(level);
         if(origin == null) return;
         List<Map.Entry<BlockPos, String>> ordered = map.entrySet().stream()
                 .sorted(Comparator.comparingDouble(e -> e.getKey().distSqr(origin)))
                 .toList();
         PacketDistributor.sendToPlayer((ServerPlayer) event.getEntity(), new SantaPositionUpdatePacket(origin, ordered.stream().map(Map.Entry::getKey).toList()));
-        //TODO: Send player santa base error message
     }
 
     public void loadLevel(LevelEvent.Load event) {
@@ -237,8 +239,18 @@ public class Santa {
         if(!level.getServer().getWorldData().worldGenOptions().generateStructures()) return;
         if(level.dimension() != ServerLevel.OVERWORLD) return;
         if(SantaBase.getPos(level) != null) return;
-        if(SantaBase.getFlag(level)) return;
-        SantaBase.generate(level, null);
+        if(SantaBase.getFlag(level)) {
+            notifyPlayersError(level);
+            return;
+        }
+        BlockPos pos = SantaBase.generate(level, null);
+        if(pos == null) {
+            notifyPlayersError(level);
+        }
+    }
+
+    private static void notifyPlayersError(ServerLevel level) {
+        level.players().forEach(p -> p.sendSystemMessage(Component.translatable("commands.santa.try_spawn_santa_base.failed")));
     }
 
     @SubscribeEvent
